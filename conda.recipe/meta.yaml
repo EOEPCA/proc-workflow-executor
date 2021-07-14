@@ -1,0 +1,35 @@
+{% set name = "workflow-executor" %}
+
+package:
+  name: '{{ name|lower }}'
+  version: '{{ load_setup_py_data().version }}'
+
+source:
+     path: ..
+
+build:
+  number: 0
+  script: python setup.py install
+  noarch: python
+
+requirements:
+  host:
+    - setuptools
+
+  run:
+  - cwl-wrapper=0.8.0
+  - click=7.1.2
+  - fastapi=0.65.0
+  - python-kubernetes=12.0.0
+  - uvicorn=0.13.4
+  - jinja2=2.10
+  - fastapi==0.65.0
+  - uvicorn==0.13.4
+  - pyjwt=2.1.0
+  - pycrypto==2.6.1
+  - pip
+
+about:
+  home: https://github.com/eoepca/
+  license: Apache License
+  summary: "workflow executor for the EOEPCA ADES"

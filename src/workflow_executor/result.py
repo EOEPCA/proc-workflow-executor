@@ -2,7 +2,7 @@ import sys
 import time
 from os import path
 from pprint import pprint
-
+import pkg_resources
 import yaml
 from jinja2 import Template
 from kubernetes import client
@@ -11,7 +11,9 @@ from kubernetes.client.rest import ApiException
 from workflow_executor import helpers
 
 
-def run(namespace, mount_folder, volume_name_prefix, workflowname, outputfile, state=None):
+def run(
+    namespace, mount_folder, volume_name_prefix, workflowname, outputfile, state=None
+):
     # create an instance of the API class
     apiclient = helpers.get_api_client()
     batch_api_instance = client.BatchV1Api(api_client=apiclient)
@@ -20,7 +22,10 @@ def run(namespace, mount_folder, volume_name_prefix, workflowname, outputfile, s
     # for further details check https://github.com/Duke-GCB/calrissian/blob/master/examples/ViewResultsJob.yaml
     jobname = f"{workflowname}-view-results"
 
-    yamlFileTemplate = "CalrissianViewResults.yaml"
+    yamlFileTemplate = pkg_resources.resource_filename(
+        __package__, "assets/CalrissianViewResults.yaml"
+    )
+
     with open(path.join(path.dirname(__file__), yamlFileTemplate)) as f:
 
         print(f"Customizing stage-in job using the template {yamlFileTemplate} ")
@@ -46,7 +51,7 @@ def run(namespace, mount_folder, volume_name_prefix, workflowname, outputfile, s
         return e
 
     # wait for job to finish
-    count=0
+    count = 0
     ret = batch_api_instance.read_namespaced_job(name=jobname, namespace=namespace)
     while not ret.status.conditions and count < 10:
         time.sleep(3)
@@ -54,21 +59,24 @@ def run(namespace, mount_folder, volume_name_prefix, workflowname, outputfile, s
         count += 1
     # get pod from job
     try:
-        podlist = core_api_instance.list_namespaced_pod(namespace=namespace, label_selector=f"job-name={jobname}")
+        podlist = core_api_instance.list_namespaced_pod(
+            namespace=namespace, label_selector=f"job-name={jobname}"
+        )
         pod = podlist.items[0].metadata.name
     except ApiException as e:
         print("Exception listing pods: %s\n" % e)
         raise e
 
-
     # get pod log
     try:
         print(f"Checking that pod {pod} is in ready state.")
-        podReady=False
-        count=0
+        podReady = False
+        count = 0
         while not podReady and count < 10:
             time.sleep(3)
-            podstatus = core_api_instance.read_namespaced_pod_status(name=pod, namespace=namespace)
+            podstatus = core_api_instance.read_namespaced_pod_status(
+                name=pod, namespace=namespace
+            )
             podReady = is_ready(podstatus=podstatus)
             count += 1
 
@@ -79,14 +87,13 @@ def run(namespace, mount_folder, volume_name_prefix, workflowname, outputfile, s
     # get pod log
     try:
         print(f"retrieving logs of pod {pod}")
-        result = core_api_instance.read_namespaced_pod_log(name=pod, namespace=namespace, container="view-results")
+        result = core_api_instance.read_namespaced_pod_log(
+            name=pod, namespace=namespace, container="view-results"
+        )
     except ApiException as e:
         print("Exception when retrieving result from output volume: %s\n" % e)
         raise e
     return eval(result)
-
-
-
 
 
 def is_ready(podstatus) -> bool:

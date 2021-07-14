@@ -10,7 +10,6 @@ import time
 
 
 class FastApiTestCase(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         print("Creating kubernetes test cluster")
@@ -43,7 +42,7 @@ class FastApiTestCase(unittest.TestCase):
         os.environ["STORAGE_HOST"] = "https://nx10438.your-storageshare.de/"
         os.environ["STORAGE_USERNAME"] = "eoepca-demo-storage"
         os.environ["STORAGE_APIKEY"] = "FakeApiKey"
-        os.environ["IMAGE_PULL_SECRETS"]="imagepullsecrets.json"
+        os.environ["IMAGE_PULL_SECRETS"] = "imagepullsecrets.json"
 
     def test_step1_get_root(self):
         response = self.client.get("/")
@@ -51,10 +50,16 @@ class FastApiTestCase(unittest.TestCase):
         assert response.json() == {"Hello": "World"}
 
     def test_step2_post_prepare(self):
-        response = self.client.post("/prepare",
-                                    json={"runID": self.runID, "serviceID": self.serviceID, "cwl": self.cwl_content})
+        response = self.client.post(
+            "/prepare",
+            json={
+                "runID": self.runID,
+                "serviceID": self.serviceID,
+                "cwl": self.cwl_content,
+            },
+        )
         assert response.status_code == 201
-        assert response.json() == {'prepareID': self.prepareId}
+        assert response.json() == {"prepareID": self.prepareId}
 
     def test_step3_get_prepare(self):
         response = self.client.get(f"/prepare/{self.prepareId}")
@@ -66,8 +71,13 @@ class FastApiTestCase(unittest.TestCase):
             time.sleep(1)
 
     def test_step4_post_execute(self):
-        content = {"runID": self.runID, "serviceID": self.serviceID, "prepareID": self.prepareId,
-                   "cwl": self.cwl_content, "inputs": self.inputs_content}
+        content = {
+            "runID": self.runID,
+            "serviceID": self.serviceID,
+            "prepareID": self.prepareId,
+            "cwl": self.cwl_content,
+            "inputs": self.inputs_content,
+        }
 
         pprint(content)
 
@@ -91,5 +101,5 @@ class FastApiTestCase(unittest.TestCase):
         clean.run(self.prepareId)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

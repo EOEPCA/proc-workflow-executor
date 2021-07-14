@@ -11,10 +11,19 @@ import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
-def run(namespace, tmpVolumeSize, outputVolumeSize, volumeName, storage_class_name=None, imagepullsecrets=None,ades_namespace=None,
-        state=None):
+def run(
+    namespace,
+    tmpVolumeSize,
+    outputVolumeSize,
+    volumeName,
+    storage_class_name=None,
+    imagepullsecrets=None,
+    ades_namespace=None,
+    state=None,
+):
     print(
-        f"Preparing {namespace} tmpVolumeSize: {tmpVolumeSize} outputVolumeSize: {outputVolumeSize}  volumeName: {volumeName}")
+        f"Preparing {namespace} tmpVolumeSize: {tmpVolumeSize} outputVolumeSize: {outputVolumeSize}  volumeName: {volumeName}"
+    )
 
     apiclient = helpers.get_api_client()
     api_instance = client.RbacAuthorizationV1Api(apiclient)
@@ -47,16 +56,21 @@ def run(namespace, tmpVolumeSize, outputVolumeSize, volumeName, storage_class_na
     #### Creating pod manager role
     print("####################################")
     print("######### Creating pod_manager_role")
-    metadata = client.V1ObjectMeta(name='pod-manager-role', namespace=namespace)
-    rule = client.V1PolicyRule(api_groups=['*'], resources=['pods', 'pods/log'],
-                               verbs=['create', 'patch', 'delete', 'list', 'watch'])
+    metadata = client.V1ObjectMeta(name="pod-manager-role", namespace=namespace)
+    rule = client.V1PolicyRule(
+        api_groups=["*"],
+        resources=["pods", "pods/log"],
+        verbs=["create", "patch", "delete", "list", "watch"],
+    )
     rules = []
     rules.append(rule)
     body = client.V1Role(metadata=metadata, rules=rules)
     pretty = True
 
     try:
-        api_response = api_instance.create_namespaced_role(namespace, body, pretty=pretty)
+        api_response = api_instance.create_namespaced_role(
+            namespace, body, pretty=pretty
+        )
         pprint(api_response)
     except ApiException as e:
         print("Exception when creating pod-manager-role: %s\n" % e, file=sys.stderr)
@@ -65,9 +79,12 @@ def run(namespace, tmpVolumeSize, outputVolumeSize, volumeName, storage_class_na
     #### Creating log-reader-role
     print("####################################")
     print("######### Creating log-reader-role")
-    metadata = client.V1ObjectMeta(name='log-reader-role', namespace=namespace)
-    rule = client.V1PolicyRule(api_groups=['*'], resources=['pods', 'pods/log'],
-                               verbs=['create', 'patch', 'delete', 'list', 'watch'])
+    metadata = client.V1ObjectMeta(name="log-reader-role", namespace=namespace)
+    rule = client.V1PolicyRule(
+        api_groups=["*"],
+        resources=["pods", "pods/log"],
+        verbs=["create", "patch", "delete", "list", "watch"],
+    )
     # verbs=['get', 'list'])
     rules = []
     rules.append(rule)
@@ -75,7 +92,9 @@ def run(namespace, tmpVolumeSize, outputVolumeSize, volumeName, storage_class_na
     pretty = True
 
     try:
-        api_response = api_instance.create_namespaced_role(namespace, body, pretty=pretty)
+        api_response = api_instance.create_namespaced_role(
+            namespace, body, pretty=pretty
+        )
         pprint(api_response)
     except ApiException as e:
         print("Exception when creating pod-manager-role: %s\n" % e, file=sys.stderr)
@@ -83,62 +102,91 @@ def run(namespace, tmpVolumeSize, outputVolumeSize, volumeName, storage_class_na
 
     print("####################################")
     print("######### Creating pod-manager-default-binding")
-    metadata = client.V1ObjectMeta(name='pod-manager-default-binding', namespace=namespace)
+    metadata = client.V1ObjectMeta(
+        name="pod-manager-default-binding", namespace=namespace
+    )
 
-    role_ref = client.V1RoleRef(api_group='', kind='Role', name='pod-manager-role')
+    role_ref = client.V1RoleRef(api_group="", kind="Role", name="pod-manager-role")
 
-    subject = client.models.V1Subject(api_group='', kind='ServiceAccount', name='default', namespace=namespace)
+    subject = client.models.V1Subject(
+        api_group="", kind="ServiceAccount", name="default", namespace=namespace
+    )
     subjects = []
     subjects.append(subject)
 
     body = client.V1RoleBinding(metadata=metadata, role_ref=role_ref, subjects=subjects)
     pretty = True
     try:
-        api_response = api_instance.create_namespaced_role_binding(namespace, body, pretty=pretty)
+        api_response = api_instance.create_namespaced_role_binding(
+            namespace, body, pretty=pretty
+        )
         pprint(api_response)
     except ApiException as e:
-        print("Exception when creating pod-manager-default-binding: %s\n" % e, file=sys.stderr)
+        print(
+            "Exception when creating pod-manager-default-binding: %s\n" % e,
+            file=sys.stderr,
+        )
         raise e
 
     print("####################################")
     print("######### Creating log-reader-default-binding")
-    metadata = client.V1ObjectMeta(name='log-reader-default-binding', namespace=namespace)
+    metadata = client.V1ObjectMeta(
+        name="log-reader-default-binding", namespace=namespace
+    )
 
-    role_ref = client.V1RoleRef(api_group='', kind='Role', name='log-reader-role')
+    role_ref = client.V1RoleRef(api_group="", kind="Role", name="log-reader-role")
 
-    subject = client.models.V1Subject(api_group='', kind='ServiceAccount', name='default', namespace=namespace)
+    subject = client.models.V1Subject(
+        api_group="", kind="ServiceAccount", name="default", namespace=namespace
+    )
     subjects = []
     subjects.append(subject)
 
     body = client.V1RoleBinding(metadata=metadata, role_ref=role_ref, subjects=subjects)
     pretty = True
     try:
-        api_response = api_instance.create_namespaced_role_binding(namespace, body, pretty=pretty)
+        api_response = api_instance.create_namespaced_role_binding(
+            namespace, body, pretty=pretty
+        )
         pprint(api_response)
     except ApiException as e:
-        print("Exception when creating log-reader-default-binding: %s\n" % e, file=sys.stderr)
+        print(
+            "Exception when creating log-reader-default-binding: %s\n" % e,
+            file=sys.stderr,
+        )
         raise e
 
     print("####################################")
     print("######### Creating cluster-role-binding")
     metadata = client.V1ObjectMeta(name=f"{namespace}-rbac", namespace=namespace)
 
-    role_ref = client.V1RoleRef(api_group='rbac.authorization.k8s.io', kind='ClusterRole', name='cluster-admin')
+    role_ref = client.V1RoleRef(
+        api_group="rbac.authorization.k8s.io", kind="ClusterRole", name="cluster-admin"
+    )
 
-    subject = client.models.V1Subject(api_group='', kind='ServiceAccount', name='default', namespace=namespace)
+    subject = client.models.V1Subject(
+        api_group="", kind="ServiceAccount", name="default", namespace=namespace
+    )
     subjects = []
     subjects.append(subject)
 
-    body = client.V1ClusterRoleBinding(metadata=metadata, role_ref=role_ref, subjects=subjects)
+    body = client.V1ClusterRoleBinding(
+        metadata=metadata, role_ref=role_ref, subjects=subjects
+    )
     pretty = True
     try:
-        api_response = api_instance.create_cluster_role_binding(body=body, pretty=pretty)
+        api_response = api_instance.create_cluster_role_binding(
+            body=body, pretty=pretty
+        )
         pprint(api_response)
     except ApiException as e:
         if e.status == 409:
             print(f"cluster-role-binding {namespace}-rbac has already been installed")
         else:
-            print("Exception when creating cluster-role-binding: %s\n" % e, file=sys.stderr)
+            print(
+                "Exception when creating cluster-role-binding: %s\n" % e,
+                file=sys.stderr,
+            )
             raise e
 
     print("####################################")
@@ -162,22 +210,19 @@ def run(namespace, tmpVolumeSize, outputVolumeSize, volumeName, storage_class_na
     metadata2 = client.V1ObjectMeta(name=f"{volumeName}-tmpout", namespace=namespace)
     spec2 = client.V1PersistentVolumeClaimSpec(
         access_modes=["ReadWriteMany"],
-        resources=client.V1ResourceRequirements(
-            requests={"storage": tmpVolumeSize}
-        )
+        resources=client.V1ResourceRequirements(requests={"storage": tmpVolumeSize}),
     )
     if storage_class_name:
         spec2.storage_class_name = storage_class_name
 
     body2 = client.V1PersistentVolumeClaim(metadata=metadata2, spec=spec2)
 
-    metadata3 = client.V1ObjectMeta(name=f"{volumeName}-output-data", namespace=namespace
-                                    )
+    metadata3 = client.V1ObjectMeta(
+        name=f"{volumeName}-output-data", namespace=namespace
+    )
     spec3 = client.V1PersistentVolumeClaimSpec(
         access_modes=["ReadWriteMany"],
-        resources=client.V1ResourceRequirements(
-            requests={"storage": outputVolumeSize}
-        )
+        resources=client.V1ResourceRequirements(requests={"storage": outputVolumeSize}),
     )
     if storage_class_name:
         spec3.storage_class_name = storage_class_name
@@ -187,13 +232,19 @@ def run(namespace, tmpVolumeSize, outputVolumeSize, volumeName, storage_class_na
     pretty = True
     try:
         #    api_response1 = v1.create_namespaced_persistent_volume_claim(namespace, body1, pretty=pretty)
-        api_response2 = v1.create_namespaced_persistent_volume_claim(namespace, body2, pretty=pretty)
-        api_response3 = v1.create_namespaced_persistent_volume_claim(namespace, body3, pretty=pretty)
+        api_response2 = v1.create_namespaced_persistent_volume_claim(
+            namespace, body2, pretty=pretty
+        )
+        api_response3 = v1.create_namespaced_persistent_volume_claim(
+            namespace, body3, pretty=pretty
+        )
         #    pprint(api_response1)
         pprint(api_response2)
         pprint(api_response3)
     except ApiException as e:
-        print("Exception when creating persistent_volume_claim: %s\n" % e, file=sys.stderr)
+        print(
+            "Exception when creating persistent_volume_claim: %s\n" % e, file=sys.stderr
+        )
         raise e
 
     # we copy the secret from ades namespace to the new job namespace
@@ -201,30 +252,43 @@ def run(namespace, tmpVolumeSize, outputVolumeSize, volumeName, storage_class_na
         for imagepullsecret in imagepullsecrets:
             # Create an instance of the API class
             secretname = imagepullsecret["name"]
-            pretty = True  # str | If 'true', then the output is pretty printed. (optional)
+            pretty = (
+                True  # str | If 'true', then the output is pretty printed. (optional)
+            )
             exact = False  # bool | Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'. Deprecated. Planned for removal in 1.18. (optional)
             export = True  # bool | Should this value be exported.  Export strips fields that a user can not specify. Deprecated. Planned for removal in 1.18. (optional)
 
             secret_export = None
             try:
-                secret_export = v1.read_namespaced_secret(secretname, ades_namespace, pretty=pretty, exact=exact, export=export)
+                secret_export = v1.read_namespaced_secret(
+                    secretname,
+                    ades_namespace,
+                    pretty=pretty,
+                    exact=exact,
+                    export=export,
+                )
             except ApiException as e:
-                print("Exception when retrieving image pull secret from eoepca: %s\n" % e)
+                print(
+                    "Exception when retrieving image pull secret from eoepca: %s\n" % e
+                )
 
             time.sleep(5)
             try:
-                api_response = v1.create_namespaced_secret(namespace, secret_export, pretty=pretty)
+                api_response = v1.create_namespaced_secret(
+                    namespace, secret_export, pretty=pretty
+                )
             except ApiException as e:
                 print("Exception when creating image pull secret: %s\n" % e)
 
             time.sleep(5)
 
-            name = 'default'
+            name = "default"
             try:
-                service_account_body = v1.read_namespaced_service_account(name, namespace, pretty=True)
+                service_account_body = v1.read_namespaced_service_account(
+                    name, namespace, pretty=True
+                )
                 pprint(service_account_body)
                 time.sleep(5)
-
 
                 if service_account_body.secrets is None:
                     service_account_body.secrets = []
@@ -235,10 +299,15 @@ def run(namespace, tmpVolumeSize, outputVolumeSize, volumeName, storage_class_na
                 service_account_body.secrets.append({"name": secretname})
                 service_account_body.image_pull_secrets.append({"name": secretname})
 
-                api_response = v1.patch_namespaced_service_account(name, namespace, service_account_body, pretty=True)
+                api_response = v1.patch_namespaced_service_account(
+                    name, namespace, service_account_body, pretty=True
+                )
                 pprint(api_response)
             except ApiException as e:
-                print("Exception when calling CoreV1Api->patch_namespaced_service_account: %s\n" % e)
+                print(
+                    "Exception when calling CoreV1Api->patch_namespaced_service_account: %s\n"
+                    % e
+                )
 
     return {"status": "success"}
 
@@ -272,7 +341,10 @@ def get(namespace, state=None):
             elif pvc.status.phase == "Failed":
                 return {"status": "failed"}
     except ApiException as e:
-        print("Exception when calling CoreV1Api->list_namespaced_persistent_volume_claim: %s\n" % e)
+        print(
+            "Exception when calling CoreV1Api->list_namespaced_persistent_volume_claim: %s\n"
+            % e
+        )
         raise e
 
     return {"status": "success"}

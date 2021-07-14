@@ -1,4 +1,4 @@
-name: workflow_executor_env
+name: env_workflow_executor
 channels:
   - eoepca
   - conda-forge
@@ -14,19 +14,11 @@ dependencies:
   - fastapi==0.65.0
   - cwl-wrapper==0.8.0
   - uvicorn==0.13.4
+  - pyjwest
+  - pycrypto==2.6.1
   - pip
   - pip:
-      - pytest-kind
-      - boto3==1.17.53
       - eoepca-scim==2.7.4
-      - lxml==4.6.3
-      - pycrypto==2.6.1
-      - pyjwkest==1.4.2
       - robotframework==3.2.2
       - WellKnownHandler==0.2.0
-      - OWSLib==0.24.1
-      - folium==0.12.1
-      - geolinks==0.2.0
-      - bs4==0.0.1
-      - tifffile==2021.4.8
-      - awscli==1.19.53
+

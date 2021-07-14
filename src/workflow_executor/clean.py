@@ -17,7 +17,7 @@ def run(namespace):
         # create an instance of the API class
         api_client = helpers.get_api_client()
         api_instance = client.CoreV1Api(api_client)
-        resp = api_instance.delete_namespace(name=namespace,pretty=True)
+        resp = api_instance.delete_namespace(name=namespace, pretty=True)
         return resp
 
     except ApiException as e:

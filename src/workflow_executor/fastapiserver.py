@@ -5,8 +5,7 @@ import uvicorn
 from fastapi import FastAPI, Form, File, status, Response, Request
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
-import workflow_executor
-from workflow_executor import prepare, client, result, clean, helpers
+from . import prepare, client, result, clean, helpers, execute
 from pydantic import BaseModel
 from kubernetes.client.rest import ApiException
 from pprint import pprint
@@ -90,6 +89,7 @@ def read_prepare(content: PrepareContent, response: Response):
             sanitize_k8_parameters(content.runID),
         )
 
+    # TODO create an enum class
     default_tmpVolumeSize = "4Gi"
     default_outputVolumeSize = "5Gi"
 
@@ -116,9 +116,14 @@ def read_prepare(content: PrepareContent, response: Response):
 
     # image pull secrets
     image_pull_secrets_json = os.getenv("IMAGE_PULL_SECRETS", None)
+
+    # TODO if image_pull_secrets_json is None, no value assigned to image_pull_secrets
     if image_pull_secrets_json is not None:
         with open(image_pull_secrets_json) as json_file:
             image_pull_secrets = json.load(json_file)
+    else:
+        image_pull_secrets = {}
+
 
     print("namespace: %s" % prepare_id)
     print(f"tmpVolumeSize: {tmpVolumeSize}")
@@ -126,7 +131,7 @@ def read_prepare(content: PrepareContent, response: Response):
     print("volume_name: %s" % volumeName)
 
     try:
-        resp_status = workflow_executor.prepare.run(
+        resp_status = prepare.run(
             namespace=prepare_id,
             tmpVolumeSize=tmpVolumeSize,
             outputVolumeSize=outputVolumeSize,
@@ -155,10 +160,11 @@ def read_prepare(prepare_id: str, response: Response):
     # volumeName = sanitize_k8_parameters(f"{content.serviceID}volume")
 
     try:
-        resp_status = workflow_executor.prepare.get(namespace=namespace, state=state)
+        resp_status = prepare.get(namespace=namespace, state=state)
     except ApiException as e:
         response.status_code = e.status
 
+    print(resp_status)
     if resp_status["status"] == "pending":
         response.status_code = status.HTTP_100_CONTINUE
 
@@ -349,7 +355,7 @@ def read_execute(content: ExecuteContent, response: Response):
         print(input_json.name)
 
         try:
-            resp_status = workflow_executor.execute.run(
+            resp_status = execute.run(
                 state=state,
                 cwl_document=cwl_file.name,
                 job_input_json=input_json.name,
@@ -400,7 +406,7 @@ def read_getstatus(
     from fastapi import status
 
     try:
-        resp_status = workflow_executor.status.run(
+        resp_status = status.run(
             namespace=namespace, workflow_name=workflow_name, state=state
         )
 
@@ -476,7 +482,7 @@ def read_getresult(
     print("Result GET")
 
     try:
-        resp_status = workflow_executor.result.run(
+        resp_status = result.run(
             namespace=namespace,
             workflowname=workflow_name,
             mount_folder=mount_folder,
@@ -500,6 +506,7 @@ def read_getresult(
 
         if not keepworkspace:
             print("Removing Workspace")
+            # TODO add a dedicated method to clean the namespace
             clean_job_status = clean_job(namespace)
             if isinstance(clean_job_status, Error):
                 return clean_job_status
@@ -610,7 +617,7 @@ Removes Kubernetes namespace
 def clean_job(namespace: str):
     clean_status = {}
     try:
-        clean_status = workflow_executor.clean.run(namespace=namespace)
+        clean_status = clean.run(namespace=namespace)
         return clean_status
     except ApiException as err:
         e = Error()

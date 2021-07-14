@@ -86,12 +86,18 @@ def getCwlWorkflowId(cwl_path):
 
 
 def getCwlResourceRequirement(cwl_content):
+
+    if not cwl_content:
+        return None
+
     print("parsing cwl to retrieve the ResourceRequirements")
     try:
         graph = yaml.load(cwl_content, Loader=yaml.FullLoader)["$graph"]
     except yaml.YAMLError as exc:
         print(exc, file=sys.stderr)
 
+    # TODO if the CWL has several CommandLineTool classes what do we do?
+    # here it bails after the first one having expressed the requirements
     for item in graph:
         if item.get("class") == "CommandLineTool":
             try:

@@ -31,3 +31,15 @@ Run the client:
 ```console
 workflow-executor --help
 ```
+
+## Setting up the environment
+
+### kubeconfig
+
+Set the `KUBECONFIG` environment variable access the k8s cluster
+
+### STORAGE_CLASS
+
+**Mandatory**
+
+Set the `STORAGE_CLASS` environment variable

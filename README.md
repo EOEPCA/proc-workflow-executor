@@ -5,7 +5,7 @@
 ## Development
 
 ```console
-mamba create -f environment.yml
+mamba env create -f environment.yml
 ```
 
 Activate the environment:

@@ -14,7 +14,7 @@ dependencies:
   - fastapi==0.65.0
   - cwl-wrapper==0.8.0
   - uvicorn==0.13.4
-  - pyjwest
+  - pyjwkest==1.4.2
   - pycrypto==2.6.1
   - pip
   - pip:

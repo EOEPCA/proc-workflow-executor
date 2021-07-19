@@ -11,7 +11,7 @@ def package_files(where):
     return paths
 
 
-extra_files = package_files(['src/workflow_executor/assets'])
+extra_files = package_files(['src/workflow_executor/assets', 'src/workflow_executor/test'])
 #print(extra_files)
 
 console_scripts = []

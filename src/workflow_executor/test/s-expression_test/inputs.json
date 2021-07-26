@@ -1,0 +1,25 @@
+{
+    "inputs": [
+        {
+            "id": "input_reference",
+            "href": "",
+            "value": "https://catalog.terradue.com/sentinel2/search?uid=S2A_MSIL1C_20210713T094031_N0301_R036_T36WXB_20210713T095948&do=[terradue]",
+            "mimeType": "application/json",
+            "dataType": ""
+        },
+        {
+            "id": "s_expression",
+            "href": "",
+            "value": "(/ (- nir red) (+ nir red))",
+            "mimeType": "",
+            "dataType": "string"
+        },
+        {
+            "id": "cbn",
+            "href": "",
+            "value": "cbn",
+            "mimeType": "",
+            "dataType": "string"
+        }
+    ]
+}

@@ -6,6 +6,7 @@ from fastapi import FastAPI, Form, File, status, Response, Request
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from . import prepare, client, result, clean, helpers, execute
+from . import status as ades_status
 from pydantic import BaseModel
 from kubernetes.client.rest import ApiException
 from pprint import pprint
@@ -318,7 +319,7 @@ def read_execute(content: ExecuteContent, response: Response):
         }
     )
 
-    default_max_ram_value = "4G"
+    default_max_ram_value = "1G"
     default_max_cores_value = "2"
     max_ram = os.getenv("JOB_MAX_RAM", default_max_ram_value)
     max_cores = os.getenv("JOB_MAX_CORES", default_max_cores_value)
@@ -406,7 +407,7 @@ def read_getstatus(
     from fastapi import status
 
     try:
-        resp_status = status.run(
+        resp_status = ades_status.run(
             namespace=namespace, workflow_name=workflow_name, state=state
         )
 

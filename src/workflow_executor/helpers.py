@@ -22,7 +22,14 @@ def get_api_client():
         my_api_config.host = proxy_url
         my_api_config.proxy = proxy_url
         my_api_config = client.ApiClient(my_api_config)
+    elif 'KUBECONFIG' in os.environ and os.environ["KUBECONFIG"]:
+        # this is needed because kubernetes-python does not consider
+        # the KUBECONFIG env variable
+        config.load_kube_config(config_file=os.environ["KUBECONFIG"])
+        my_api_config = client.ApiClient()
     else:
+        # if nothing is specified, kubernetes-python will use the file
+        # in ~/.kube/config
         config.load_kube_config()
         my_api_config = client.ApiClient()
 

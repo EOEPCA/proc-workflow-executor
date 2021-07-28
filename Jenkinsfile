@@ -32,8 +32,8 @@ pipeline {
                 withCredentials([string(credentialsId: 'eoepca-conda', variable: 'ANACONDA_API_TOKEN')]) {
                 sh '''#!/usr/bin/env bash
                 export PACKAGENAME=workflow-executor
-                label=main
-                if [ "$GIT_BRANCH" = "develop" ]; then label=dev; fi
+                label=dev
+                if [ "$GIT_BRANCH" = "master" ]; then label=main; fi
                 anaconda upload --no-progress --force --user eoepca --label $label /srv/conda/envs/env_conda/conda-bld/*/$PACKAGENAME-*.tar.bz2
                 '''}
             }

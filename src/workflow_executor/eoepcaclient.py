@@ -35,7 +35,13 @@ class DemoClient:
         """Load state from file 'state.json'."""
         self.state = {}
         try:
-            with open("state.json") as state_file:
+
+            if "PEP_CLIENT_STATE_PATH" in os.environ and os.environ["PEP_CLIENT_STATE_PATH"]:
+                state_filename = os.path.join(os.environ["PEP_CLIENT_STATE_PATH"], "state.json")
+            else:
+                state_filename = "state.json"
+
+            with open(state_filename) as state_file:
                 self.state = json.loads(state_file.read())
                 print(f"State loaded from file: {self.state}")
         except FileNotFoundError:
@@ -46,7 +52,12 @@ class DemoClient:
     @keyword(name="Client Save State")
     def save_state(self):
         """Save state to file 'state.json'."""
-        state_filename = "state.json"
+
+        if "PEP_CLIENT_STATE_PATH" in os.environ and os.environ["PEP_CLIENT_STATE_PATH"]:
+            os.makedirs(os.environ["PEP_CLIENT_STATE_PATH"], exist_ok=True)
+            state_filename = os.path.join(os.environ["PEP_CLIENT_STATE_PATH"], "state.json")
+        else:
+            state_filename = "state.json"
         with open(state_filename, "w") as state_file:
             state_file.write(json.dumps(self.state, sort_keys=True, indent=2))
             print("Client state saved to file:", state_filename)
@@ -91,7 +102,7 @@ class DemoClient:
             if self.scim_client == None:
                 self.scim_client = EOEPCA_Scim(self.base_url + "/")
             self.client = self.scim_client.registerClient(
-                "Demo Client",
+                "ADES",
                 grantTypes=[
                     "client_credentials",
                     "password",

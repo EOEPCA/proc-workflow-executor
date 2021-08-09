@@ -72,7 +72,7 @@ def run(
         print(f"Checking that pod {pod} is in ready state.")
         podReady = False
         count = 0
-        while not podReady and count < 10:
+        while not podReady and count < 100:
             time.sleep(3)
             podstatus = core_api_instance.read_namespaced_pod_status(
                 name=pod, namespace=namespace

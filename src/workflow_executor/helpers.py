@@ -93,7 +93,6 @@ def getCwlWorkflowId(cwl_path):
 
 
 def getCwlResourceRequirement(cwl_content):
-
     if not cwl_content:
         return None
 
@@ -149,7 +148,7 @@ def storeLogs(logs, path):
 
 
 def getResourceManagerWorkspaceDetails(
-    resource_manager_endpoint, platform_domain, workspace_name, user_id_token=None
+        resource_manager_endpoint, platform_domain, workspace_name, user_id_token=None
 ):
     print("getResourceManagerWorkspaceDetails start")
 
@@ -175,11 +174,11 @@ def getResourceManagerWorkspaceDetails(
 
 
 def registerResults(
-    resource_manager_endpoint,
-    platform_domain,
-    workspace_name,
-    result_url,
-    user_id_token=None,
+        resource_manager_endpoint,
+        platform_domain,
+        workspace_name,
+        result_url,
+        user_id_token=None,
 ):
     print("registerResults start")
 

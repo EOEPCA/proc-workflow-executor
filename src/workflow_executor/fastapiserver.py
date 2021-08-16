@@ -616,7 +616,7 @@ Returns workspace details
 """
 
 @app.get(
-    "/workspace/{workspace_id}",
+    "/workspace",
     status_code=status.HTTP_200_OK,
 )
 def read_workspace_details(content: ExecuteContent, response: Response):

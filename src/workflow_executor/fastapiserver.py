@@ -5,12 +5,13 @@ import uvicorn
 from fastapi import FastAPI, Form, File, status, Response, Request
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
-from . import prepare, client, result, clean, helpers, execute
-from . import status as ades_status
+from workflow_executor import prepare, client, result, clean, helpers, execute
+from workflow_executor import status as ades_status
 from pydantic import BaseModel
 from kubernetes.client.rest import ApiException
 from pprint import pprint
 import yaml
+from typing import Optional
 
 # import rm_client
 from fastapi.exceptions import RequestValidationError
@@ -47,18 +48,18 @@ class Error:
 
 
 class PrepareContent(BaseModel):
-    serviceID: str
-    runID: str
-    cwl: str
+    serviceID: Optional[str] = None
+    runID: Optional[str] = None
+    cwl: Optional[str] = None
 
 
 class ExecuteContent(PrepareContent):
-    prepareID: str
-    cwl: str
-    inputs: str
-    username: str
-    userIdToken: str
-    registerResultUrl: str
+    prepareID: Optional[str] = None
+    cwl: Optional[str] = None
+    inputs: Optional[str] = None
+    username: Optional[str] = None
+    userIdToken: Optional[str] = None
+    registerResultUrl: Optional[str] = None
 
 
 def sanitize_k8_parameters(value: str):
@@ -620,6 +621,7 @@ Returns workspace details
 )
 def read_workspace_details(content: ExecuteContent, response: Response):
 
+    print(content)
     # retrieving userIdToken
     userIdToken = content.userIdToken
     if userIdToken is None:

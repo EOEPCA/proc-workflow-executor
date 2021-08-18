@@ -670,7 +670,7 @@ def read_workspace_details(content: ExecuteContent, response: Response):
         user_id_token=userIdToken
     )
 
-    return JSONResponse(content=workspaceDetails)
+    return JSONResponse(content=workspaceDetails["storage"]["credentials"])
 
 
 

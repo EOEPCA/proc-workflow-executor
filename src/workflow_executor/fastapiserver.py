@@ -5,12 +5,13 @@ import uvicorn
 from fastapi import FastAPI, Form, File, status, Response, Request
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
-from . import prepare, client, result, clean, helpers, execute
-from . import status as ades_status
+from workflow_executor import prepare, client, result, clean, helpers, execute
+from workflow_executor import status as ades_status
 from pydantic import BaseModel
 from kubernetes.client.rest import ApiException
 from pprint import pprint
 import yaml
+from typing import Optional
 
 # import rm_client
 from fastapi.exceptions import RequestValidationError
@@ -47,18 +48,18 @@ class Error:
 
 
 class PrepareContent(BaseModel):
-    serviceID: str
-    runID: str
-    cwl: str
+    serviceID: Optional[str] = None
+    runID: Optional[str] = None
+    cwl: Optional[str] = None
 
 
 class ExecuteContent(PrepareContent):
-    prepareID: str
-    cwl: str
-    inputs: str
-    username: str
-    userIdToken: str
-    registerResultUrl: str
+    prepareID: Optional[str] = None
+    cwl: Optional[str] = None
+    inputs: Optional[str] = None
+    username: Optional[str] = None
+    userIdToken: Optional[str] = None
+    registerResultUrl: Optional[str] = None
 
 
 def sanitize_k8_parameters(value: str):
@@ -539,7 +540,6 @@ def read_getresult(
 Registers results
 """
 
-
 @app.post("/register", status_code=status.HTTP_201_CREATED)
 def read_register_results(content: ExecuteContent, response: Response):
     try:
@@ -608,6 +608,71 @@ def read_register_results(content: ExecuteContent, response: Response):
         e.set_error(12, err.body)
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return e
+
+
+
+"""
+Returns workspace details
+"""
+
+@app.get(
+    "/workspace",
+    status_code=status.HTTP_200_OK,
+)
+def read_workspace_details(content: ExecuteContent, response: Response):
+
+    print(content)
+    # retrieving userIdToken
+    userIdToken = content.userIdToken
+    if userIdToken is None:
+        e = Error()
+        e.set_error(12, "User Id Token is missing or is invalid")
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return e
+
+    # retrieving resource manager workspace prefix
+    rmWorkspacePrefix = os.getenv(
+        "RESOURCE_MANAGER_WORKSPACE_PREFIX", "rm-user"
+    )
+
+    # retrieving rm endpoint and user
+    resource_manager_endpoint = os.getenv("RESOURCE_MANAGER_ENDPOINT", None)
+    resource_manager_user = content.username
+
+    platform_domain = os.getenv("ADES_PLATFORM_DOMAIN", None)
+
+    if resource_manager_endpoint is None:
+        e = Error()
+        e.set_error(12, "Resource Manager endpoint is missing or is invalid")
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return e
+
+    if platform_domain is None:
+        e = Error()
+        e.set_error(12, "Platform domain is missing or is invalid")
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return e
+
+    if resource_manager_user is None:
+        e = Error()
+        e.set_error(12, "Username is missing or is invalid")
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return e
+
+    # temporary naming convention for resource mananeger workspace name: "rm-user-<username>"
+    workspace_id = f"{rmWorkspacePrefix}-{resource_manager_user}".lower()
+
+    # get workspace details
+    workspaceDetails = helpers.getResourceManagerWorkspaceDetails(
+        resource_manager_endpoint=resource_manager_endpoint,
+        platform_domain=platform_domain,
+        workspace_name=workspace_id,
+        user_id_token=userIdToken
+    )
+
+    return JSONResponse(content=workspaceDetails["storage"]["credentials"])
+
+
 
 
 """

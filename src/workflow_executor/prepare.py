@@ -47,7 +47,7 @@ def run(
     print("####################################")
     print("######### Creating namespace")
     try:
-        body = client.V1Namespace(metadata=client.V1ObjectMeta(name="bla-namespace", labels=job_namespace_labels))
+        body = client.V1Namespace(metadata=client.V1ObjectMeta(name=namespace, labels=job_namespace_labels))
         namespace_json = v1.create_namespace(body=body, async_req=False)
         print(str(namespace_json))
     except ApiException as e:

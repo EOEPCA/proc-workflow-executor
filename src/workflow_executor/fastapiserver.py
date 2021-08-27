@@ -119,13 +119,18 @@ def read_prepare(content: PrepareContent, response: Response):
     # image pull secrets
     image_pull_secrets_json = os.getenv("IMAGE_PULL_SECRETS", None)
 
-    # TODO if image_pull_secrets_json is None, no value assigned to image_pull_secrets
     if image_pull_secrets_json is not None:
         with open(image_pull_secrets_json) as json_file:
             image_pull_secrets = json.load(json_file)
     else:
         image_pull_secrets = {}
 
+    # job_namespace_labels
+    job_namespace_labels_json = os.getenv("ADES_JOB_NAMESPACE_LABELS", None)
+    if job_namespace_labels_json is not None:
+            job_namespace_labels = json.loads(job_namespace_labels_json)
+    else:
+        job_namespace_labels = None
 
     print("namespace: %s" % prepare_id)
     print(f"tmpVolumeSize: {tmpVolumeSize}")
@@ -142,6 +147,7 @@ def read_prepare(content: PrepareContent, response: Response):
             storage_class_name=storage_class_name,
             imagepullsecrets=image_pull_secrets,
             ades_namespace=ades_namespace,
+            job_namespace_labels=job_namespace_labels
         )
     except ApiException as e:
         response.status_code = e.status

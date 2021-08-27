@@ -19,7 +19,8 @@ def run(
     storage_class_name=None,
     imagepullsecrets=None,
     ades_namespace=None,
-    state=None,
+    job_namespace_labels=None,
+    state=None
 ):
     print(
         f"Preparing {namespace} tmpVolumeSize: {tmpVolumeSize} outputVolumeSize: {outputVolumeSize}  volumeName: {volumeName}"
@@ -46,7 +47,7 @@ def run(
     print("####################################")
     print("######### Creating namespace")
     try:
-        body = client.V1Namespace(metadata=client.V1ObjectMeta(name=namespace))
+        body = client.V1Namespace(metadata=client.V1ObjectMeta(name=namespace, labels=job_namespace_labels))
         namespace_json = v1.create_namespace(body=body, async_req=False)
         print(str(namespace_json))
     except ApiException as e:

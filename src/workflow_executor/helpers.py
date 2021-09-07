@@ -9,6 +9,7 @@ from kubernetes import client, config
 from kubernetes.client import Configuration
 from kubernetes.client.rest import ApiException
 
+
 from . import eoepcaclient
 import json
 
@@ -166,12 +167,8 @@ def getResourceManagerWorkspaceDetails(
         id_token=user_id_token,
         access_token=workspace_access_token,
     )
-    print(f"response: {response }")
-    workspace_details = response.json()
-    print(json.dumps(workspace_details, indent=2))
-
     print("getResourceManagerWorkspaceDetails end")
-    return workspace_details
+    return response
 
 
 def registerResults(

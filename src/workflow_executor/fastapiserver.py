@@ -14,8 +14,7 @@ import yaml
 from typing import Optional
 
 # import rm_client
-from fastapi.exceptions import RequestValidationError
-
+from fastapi.exceptions import RequestValidationError, HTTPException
 
 app = FastAPI(
     title="the title",
@@ -668,13 +667,22 @@ def read_workspace_details(content: ExecuteContent, response: Response):
     # temporary naming convention for resource mananeger workspace name: "rm-user-<username>"
     workspace_id = f"{rmWorkspacePrefix}-{resource_manager_user}".lower()
 
+
     # get workspace details
-    workspaceDetails = helpers.getResourceManagerWorkspaceDetails(
+    response = helpers.getResourceManagerWorkspaceDetails(
         resource_manager_endpoint=resource_manager_endpoint,
         platform_domain=platform_domain,
         workspace_name=workspace_id,
         user_id_token=userIdToken
     )
+
+    if response.status_code == 200:
+        workspaceDetails = response.json()
+        print(json.dumps(workspaceDetails, indent=2))
+    else:
+        print(response.text)
+        raise HTTPException(status_code=response.status_code, detail=response.text)
+
 
     return JSONResponse(content=workspaceDetails["storage"]["credentials"])
 

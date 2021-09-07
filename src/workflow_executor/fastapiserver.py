@@ -621,7 +621,7 @@ def read_register_results(content: ExecuteContent, response: Response):
 Returns workspace details
 """
 
-@app.get(
+@app.post(
     "/workspace",
     status_code=status.HTTP_200_OK,
 )

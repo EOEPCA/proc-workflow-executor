@@ -218,4 +218,4 @@ def getS3Resource(aws_access_key_id,aws_secret_access_key,endpoint_url,region_na
         region_name=region_name
     )
     obj = s3_client.get_object(Bucket=bucket_name, Key=resource_key)
-    return obj['Body'].read()
+    return obj['Body'].read().decode('utf-8')

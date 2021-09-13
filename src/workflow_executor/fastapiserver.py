@@ -775,7 +775,8 @@ def read_workspace_resource(content: ExecuteContent, response: Response):
                                          bucket_name=credentials["bucketname"],
                                          resource_key=workspaceResource)
 
-        return response
+        print(response)
+        return Response(content=response, media_type="application/text")
     except ClientError as ex:
         if ex.response['Error']['Code'] == 'NoSuchKey':
             e = Error()

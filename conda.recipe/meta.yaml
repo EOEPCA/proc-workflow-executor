@@ -27,6 +27,7 @@ requirements:
   - uvicorn==0.13.4
   - pyjwkest==1.4.2
   - pycrypto==2.6.1
+  - boto3==1.18.40
   - pip
 
 about:

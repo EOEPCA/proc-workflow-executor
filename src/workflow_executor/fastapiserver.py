@@ -12,6 +12,7 @@ from kubernetes.client.rest import ApiException
 from pprint import pprint
 import yaml
 from typing import Optional
+from botocore.exceptions import ClientError
 
 # import rm_client
 from fastapi.exceptions import RequestValidationError, HTTPException
@@ -59,6 +60,7 @@ class ExecuteContent(PrepareContent):
     username: Optional[str] = None
     userIdToken: Optional[str] = None
     registerResultUrl: Optional[str] = None
+    workspaceResource: Optional[str] = None
 
 
 def sanitize_k8_parameters(value: str):
@@ -621,7 +623,7 @@ Returns workspace details
 """
 
 @app.post(
-    "/workspace",
+    "/workspace_details",
     status_code=status.HTTP_200_OK,
 )
 def read_workspace_details(content: ExecuteContent, response: Response):
@@ -685,6 +687,108 @@ def read_workspace_details(content: ExecuteContent, response: Response):
 
 
     return JSONResponse(content=workspaceDetails["storage"]["credentials"])
+
+
+
+
+"""
+Returns workspace details
+"""
+
+@app.post(
+    "/workspace_resource",
+    status_code=status.HTTP_200_OK,
+)
+def read_workspace_resource(content: ExecuteContent, response: Response):
+
+    print(content)
+    # retrieving userIdToken
+    userIdToken = content.userIdToken
+    if userIdToken is None:
+        e = Error()
+        e.set_error(12, "User Id Token is missing or is invalid")
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return e
+
+    workspaceResource = content.workspaceResource
+    if workspaceResource is None:
+        e = Error()
+        e.set_error(12, "Workspace resource is missing or is invalid")
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return e
+
+    # retrieving resource manager workspace prefix
+    rmWorkspacePrefix = os.getenv(
+        "RESOURCE_MANAGER_WORKSPACE_PREFIX", "rm-user"
+    )
+
+    # retrieving rm endpoint and user
+    resource_manager_endpoint = os.getenv("RESOURCE_MANAGER_ENDPOINT", None)
+    resource_manager_user = content.username
+
+    platform_domain = os.getenv("ADES_PLATFORM_DOMAIN", None)
+
+    if resource_manager_endpoint is None:
+        e = Error()
+        e.set_error(12, "Resource Manager endpoint is missing or is invalid")
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return e
+
+    if platform_domain is None:
+        e = Error()
+        e.set_error(12, "Platform domain is missing or is invalid")
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return e
+
+    if resource_manager_user is None:
+        e = Error()
+        e.set_error(12, "Username is missing or is invalid")
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return e
+
+    # temporary naming convention for resource mananeger workspace name: "rm-user-<username>"
+    workspace_id = f"{rmWorkspacePrefix}-{resource_manager_user}".lower()
+
+
+    # get workspace details
+    response = helpers.getResourceManagerWorkspaceDetails(
+        resource_manager_endpoint=resource_manager_endpoint,
+        platform_domain=platform_domain,
+        workspace_name=workspace_id,
+        user_id_token=userIdToken
+    )
+
+    if response.status_code != 200:
+        print(response.text)
+        e = Error()
+        e.set_error(12, f"Error retrieving workspace details. {response.text}")
+        response.status_code = response.status_code
+        return e
+
+    credentials = response.json()["storage"]["credentials"]
+    print(credentials)
+    try:
+        response = helpers.getS3Resource(aws_access_key_id=credentials["access"],
+                                         aws_secret_access_key=credentials["secret"],
+                                         endpoint_url=credentials["endpoint"],
+                                         region_name=credentials["region"],
+                                         bucket_name=credentials["bucketname"],
+                                         resource_key=workspaceResource)
+
+        return response
+    except ClientError as ex:
+        if ex.response['Error']['Code'] == 'NoSuchKey':
+            e = Error()
+            e.set_error(12, f"No such key {workspaceResource}. Requested object is missing from the bucket ")
+            response.status_code = response.status_code
+            return e
+        else:
+            e = Error()
+            e.set_error(12, f"Error retrieving workspace resource. {ex.response['Error']['Code']}: {ex.response['Error']['Message']}")
+            response.status_code = status.HTTP_400_BAD_REQUEST
+            return e
+
+
 
 
 

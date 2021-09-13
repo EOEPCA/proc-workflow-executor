@@ -204,6 +204,11 @@ def registerResults(
 
 
 def getS3Resource(aws_access_key_id,aws_secret_access_key,endpoint_url,region_name,bucket_name, resource_key):
+
+    prefix = f"s3://{bucket_name}/"
+    if resource_key.startswith(prefix):
+        resource_key = resource_key[len(prefix):]
+
     session = boto3.session.Session()
     s3_client = session.client(
         service_name='s3',

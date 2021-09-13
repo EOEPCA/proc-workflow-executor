@@ -8,6 +8,7 @@ import yaml
 from kubernetes import client, config
 from kubernetes.client import Configuration
 from kubernetes.client.rest import ApiException
+import boto3
 
 
 from . import eoepcaclient
@@ -200,3 +201,16 @@ def registerResults(
 
     print("registerResults end")
     return registration_details
+
+
+def getS3Resource(aws_access_key_id,aws_secret_access_key,endpoint_url,region_name,bucket_name, resource_key):
+    session = boto3.session.Session()
+    s3_client = session.client(
+        service_name='s3',
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key,
+        endpoint_url=endpoint_url,
+        region_name=region_name
+    )
+    obj = s3_client.get_object(Bucket=bucket_name, Key=resource_key)
+    return obj['Body'].read()

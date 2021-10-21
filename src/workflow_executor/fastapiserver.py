@@ -425,7 +425,7 @@ def read_getstatus(
 
     try:
         resp_status = ades_status.run(
-            namespace=namespace, workflow_name=workflow_name, state=state
+            namespace=namespace, workflow_name=workflow_name,service_id=service_id,run_id=run_id, state=state
         )
 
         if resp_status["status"] == "Running":

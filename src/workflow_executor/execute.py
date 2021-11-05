@@ -73,6 +73,7 @@ def run(
     cwl_wrapper_config=None,
     state=None,
     pod_env_vars=None,
+    workflowIdHashtag=None
 ):
     # volumes
     input_volume_name = volume_name_prefix + "-input-data"
@@ -86,7 +87,10 @@ def run(
     delete_line_by_full_match(wrapped_cwl_document, "  stderr: std.err")
     delete_line_by_full_match(wrapped_cwl_document, "  stdout: std.out")
 
-    workflow_id = helpers.getCwlWorkflowId(cwl_document)
+    if workflowIdHashtag is None:
+        workflow_id = helpers.getCwlWorkflowId(cwl_document)
+    else:
+        workflow_id = workflowIdHashtag
     # wrapped_cwl_workflow_id = helpers.getCwlWorkflowId(wrapped_cwl_document)
     # no need to retrieve the id anymnore, the cwl-wrapper always sets the id "main"
     wrapped_cwl_workflow_id = "main"

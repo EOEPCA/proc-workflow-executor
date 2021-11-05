@@ -10,7 +10,7 @@ from workflow_executor import helpers
 ADES_LOGS_PATH = "/var/www/_run/res"
 
 
-def run(namespace, workflow_name, state=None):
+def run(namespace, workflow_name, service_id, run_id, state=None):
     # create an instance of the API class
     apiclient = helpers.get_api_client()
     api_instance = client.BatchV1Api(api_client=apiclient)
@@ -31,6 +31,9 @@ def run(namespace, workflow_name, state=None):
             controller_uid = api_response.metadata.labels["controller-uid"]
             logs = helpers.retrieveLogs(controller_uid, namespace)
             helpers.storeLogs(
+                # TODO ESAEOEPCA-70
+                #logs, os.path.join(ADES_LOGS_PATH, f"{service_id}_{run_id}", f"{namespace}_calrissian.log")
+
                 logs, os.path.join(ADES_LOGS_PATH, f"{namespace}_calrissian.log")
             )
 

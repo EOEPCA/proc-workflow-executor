@@ -234,7 +234,11 @@ def wrapcwl(cwl_document, cwl_wrapper_config=None, workflowId = None):
 
     if cwl_wrapper_config:
         k = dict()
-        k["cwl"] = cwl_document
+        if workflowId is not None:
+            k["cwl"] = f"{cwl_document}#{workflowId}"
+        else:
+            k["cwl"] = cwl_document
+
         k["rulez"] = (
             cwl_wrapper_config["rulez"]
             if cwl_wrapper_config.get("rulez") is not None
@@ -265,17 +269,18 @@ def wrapcwl(cwl_document, cwl_wrapper_config=None, workflowId = None):
             else None
         )
         k["assets"] = None
-        k["startworkflowid"] = workflowId
     else:
         k = dict()
-        k["cwl"] = cwl_document
+        if workflowId is not None:
+            k["cwl"] = f"{cwl_document}#{workflowId}"
+        else:
+            k["cwl"] = cwl_document
         k["rulez"] = None
         k["output"] = wrappedcwl
         k["maincwl"] = None
         k["stagein"] = None
         k["stageout"] = None
         k["assets"] = None
-        k["startworkflowid"] = workflowId
 
     wf = Parser(k)
     wf.write_output()

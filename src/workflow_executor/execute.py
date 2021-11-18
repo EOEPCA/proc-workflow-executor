@@ -73,20 +73,28 @@ def run(
     cwl_wrapper_config=None,
     state=None,
     pod_env_vars=None,
+    workflowIdHashtag=None
 ):
     # volumes
     input_volume_name = volume_name_prefix + "-input-data"
     output_volume_name = volume_name_prefix + "-output-data"
     tmpout_volume_name = volume_name_prefix + "-tmpout"
 
+    # use the workflowIdHashtag
+    # if not present, look for the first workflow in the cwl
+    if workflowIdHashtag is None:
+        workflow_id = helpers.getCwlWorkflowId(cwl_document)
+    else:
+        workflow_id = workflowIdHashtag
+
     # cwl-wrapper
-    wrapped_cwl_document = wrapcwl(cwl_document, cwl_wrapper_config)
+    wrapped_cwl_document = wrapcwl(cwl_document, cwl_wrapper_config, workflow_id)
 
     # remove std.out and std.err lines to let calrissian take care of it
     delete_line_by_full_match(wrapped_cwl_document, "  stderr: std.err")
     delete_line_by_full_match(wrapped_cwl_document, "  stdout: std.out")
 
-    workflow_id = helpers.getCwlWorkflowId(cwl_document)
+
     # wrapped_cwl_workflow_id = helpers.getCwlWorkflowId(wrapped_cwl_document)
     # no need to retrieve the id anymnore, the cwl-wrapper always sets the id "main"
     wrapped_cwl_workflow_id = "main"
@@ -215,7 +223,7 @@ def run(
             return e
 
 
-def wrapcwl(cwl_document, cwl_wrapper_config=None):
+def wrapcwl(cwl_document, cwl_wrapper_config=None, workflowId = None):
     directory = os.path.dirname(cwl_document)
 
     filename = os.path.basename(cwl_document)
@@ -226,7 +234,11 @@ def wrapcwl(cwl_document, cwl_wrapper_config=None):
 
     if cwl_wrapper_config:
         k = dict()
-        k["cwl"] = cwl_document
+        if workflowId is not None:
+            k["cwl"] = f"{cwl_document}#{workflowId}"
+        else:
+            k["cwl"] = cwl_document
+
         k["rulez"] = (
             cwl_wrapper_config["rulez"]
             if cwl_wrapper_config.get("rulez") is not None
@@ -259,7 +271,10 @@ def wrapcwl(cwl_document, cwl_wrapper_config=None):
         k["assets"] = None
     else:
         k = dict()
-        k["cwl"] = cwl_document
+        if workflowId is not None:
+            k["cwl"] = f"{cwl_document}#{workflowId}"
+        else:
+            k["cwl"] = cwl_document
         k["rulez"] = None
         k["output"] = wrappedcwl
         k["maincwl"] = None

@@ -61,6 +61,7 @@ class ExecuteContent(PrepareContent):
     userIdToken: Optional[str] = None
     registerResultUrl: Optional[str] = None
     workspaceResource: Optional[str] = None
+    workflowIdHashtag: Optional[str] = None
 
 
 def sanitize_k8_parameters(value: str):
@@ -197,6 +198,7 @@ def read_execute(content: ExecuteContent, response: Response):
 
     namespace = content.prepareID
     cwl_content = content.cwl
+    workflowIdHashtag = content.workflowIdHashtag
     inputs_content = json.loads(content.inputs)
     volume_name_prefix = sanitize_k8_parameters(f"{content.serviceID}-volume")
     workflow_name = sanitize_k8_parameters(f"wf-{content.runID}")
@@ -385,6 +387,7 @@ def read_execute(content: ExecuteContent, response: Response):
                 pod_env_vars=pod_env_vars,
                 max_ram=max_ram,
                 max_cores=max_cores,
+                workflowIdHashtag=workflowIdHashtag
             )
         except ApiException as e:
             response.status_code = e.status

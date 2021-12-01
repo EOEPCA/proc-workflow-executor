@@ -393,6 +393,10 @@ def read_execute(content: ExecuteContent, response: Response):
             response.status_code = e.status
             response.body = e.body
             resp_status = {"status": "failed", "error": e.body}
+        except ValueError as ve:
+            response.status_code = 400
+            response.body = str(ve)
+            resp_status = {"status": "failed", "error": str(ve)}
 
     return {"jobID": workflow_name}
 

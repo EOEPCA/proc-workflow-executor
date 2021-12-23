@@ -82,7 +82,7 @@ def run(
 
     # use the workflowIdHashtag
     # if not present, look for the first workflow in the cwl
-    if workflowIdHashtag is None:
+    if not workflowIdHashtag:
         workflow_id = helpers.getCwlWorkflowId(cwl_document)
     else:
         workflow_id = workflowIdHashtag
@@ -234,11 +234,7 @@ def wrapcwl(cwl_document, cwl_wrapper_config=None, workflowId = None):
 
     if cwl_wrapper_config:
         k = dict()
-        if workflowId is not None:
-            k["cwl"] = f"{cwl_document}#{workflowId}"
-        else:
-            k["cwl"] = cwl_document
-
+        k["cwl"] = f"{cwl_document}#{workflowId}"
         k["rulez"] = (
             cwl_wrapper_config["rulez"]
             if cwl_wrapper_config.get("rulez") is not None
@@ -271,10 +267,7 @@ def wrapcwl(cwl_document, cwl_wrapper_config=None, workflowId = None):
         k["assets"] = None
     else:
         k = dict()
-        if workflowId is not None:
-            k["cwl"] = f"{cwl_document}#{workflowId}"
-        else:
-            k["cwl"] = cwl_document
+        k["cwl"] = f"{cwl_document}#{workflowId}"
         k["rulez"] = None
         k["output"] = wrappedcwl
         k["maincwl"] = None

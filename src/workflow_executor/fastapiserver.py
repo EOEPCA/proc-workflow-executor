@@ -390,10 +390,12 @@ def read_execute(content: ExecuteContent, response: Response):
                 workflowIdHashtag=workflowIdHashtag
             )
         except ApiException as e:
+            print(e.body)
             response.status_code = e.status
             response.body = e.body
             resp_status = {"status": "failed", "error": e.body}
         except ValueError as ve:
+            print(str(ve))
             response.status_code = 400
             response.body = str(ve)
             resp_status = {"status": "failed", "error": str(ve)}

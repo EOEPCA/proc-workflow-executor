@@ -23,6 +23,7 @@ pipeline {
                 sh '''#!/usr/bin/env bash
                 mkdir -p /home/jovyan/conda-bld/work
                 cd $WORKSPACE
+                conda config --add channels eoepca
                 mamba build .
                 '''
             }

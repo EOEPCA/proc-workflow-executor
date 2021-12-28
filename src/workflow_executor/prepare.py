@@ -257,7 +257,7 @@ def run(
                 True  # str | If 'true', then the output is pretty printed. (optional)
             )
             exact = False  # bool | Should the export be exact.  Exact export maintains cluster-specific fields like 'Namespace'. Deprecated. Planned for removal in 1.18. (optional)
-            export = True  # bool | Should this value be exported.  Export strips fields that a user can not specify. Deprecated. Planned for removal in 1.18. (optional)
+            export = False  # bool | Should this value be exported.  Export strips fields that a user can not specify. Deprecated. Planned for removal in 1.18. (optional)
 
             secret_export = None
             try:

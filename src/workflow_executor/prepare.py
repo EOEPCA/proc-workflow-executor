@@ -275,6 +275,8 @@ def run(
 
             time.sleep(5)
             try:
+                secret_export.metadata.namespace = namespace
+                secret_export.metadata.resource_version = ""
                 api_response = v1.create_namespaced_secret(
                     namespace, secret_export, pretty=pretty
                 )

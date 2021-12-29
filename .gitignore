@@ -142,3 +142,4 @@ dmypy.json
 .idea
 
 .pytest-kind
+/src/workflow_executor/test/k8client_test.py

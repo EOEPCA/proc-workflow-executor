@@ -72,7 +72,8 @@ def run(
     max_cores="2",
     cwl_wrapper_config=None,
     state=None,
-    pod_env_vars=None,
+    pod_env_vars=dict(),
+    pod_nodeselectors=None,
     workflowIdHashtag=None
 ):
     # volumes
@@ -143,21 +144,32 @@ def run(
         dataname="pod-env-vars",
     )
     os.remove(pod_env_vars_tmp_path)
+    
+    ## Adding pod node selectors
+    pod_nodeselectors_tmp_path = "/tmp/pod_nodeselectors.json"
+    f = open(pod_nodeselectors_tmp_path, "w")
+    f.write(json.dumps(pod_nodeselectors))
+    f.close()
+    helpers.create_configmap(
+        source=pod_nodeselectors_tmp_path,
+        namespace=namespace,
+        configmap_name="pod-nodeselectors",
+        dataname="pod-nodeselectors",
+    )
+    os.remove(pod_nodeselectors_tmp_path)
 
     jsonInputFilename = ntpath.basename(tmppath)
     cwlDocumentFilename = ntpath.basename(wrapped_cwl_document)
     podEnvVarsFilename = ntpath.basename(pod_env_vars_tmp_path)
+    podNodeSelectorsFilename = ntpath.basename(pod_nodeselectors_tmp_path)
 
     # # Setup K8 configs
     apiclient = helpers.get_api_client()
     api_instance = client.BatchV1Api(apiclient)
-
-    # yamlFileTemplate = "CalrissianJobTemplate.yaml"
-    yamlFileTemplate = pkg_resources.resource_filename(
-        __package__, "assets/CalrissianJobTemplate.yaml"
-    )
     
-    
+    yamlFileTemplate = os.getenv("CALRISSIAN_JOB_TEMPLATE_PATH", pkg_resources.resource_filename(
+            __package__, "assets/CalrissianJobTemplate.yaml"
+        ))
 
     with open(path.join(path.dirname(__file__), yamlFileTemplate)) as f:
 
@@ -177,6 +189,9 @@ def run(
             "tmp_outdir_prefix": f"{path.join(mount_folder, 'tmpout', workflow_name)}/",
             "pod_env_vars_path": path.join(
                 mount_folder, "input-data", workflow_name, f"{podEnvVarsFilename}"
+            ),
+            "pod_nodeselectors_path": path.join(
+                mount_folder, "input-data", workflow_name, f"{podNodeSelectorsFilename}"
             ),
             "tmpdir_prefix": f"{path.join(mount_folder, 'tmpout', workflow_name)}/",
             "outdir": f"{path.join(mount_folder, 'output-data', workflow_name)}/",

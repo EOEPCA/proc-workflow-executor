@@ -151,11 +151,10 @@ def run(
     # # Setup K8 configs
     apiclient = helpers.get_api_client()
     api_instance = client.BatchV1Api(apiclient)
-
-    # yamlFileTemplate = "CalrissianJobTemplate.yaml"
-    yamlFileTemplate = pkg_resources.resource_filename(
-        __package__, "assets/CalrissianJobTemplate.yaml"
-    )
+    
+    yamlFileTemplate = os.getenv("CALRISSIAN_JOB_TEMPLATE_PATH", pkg_resources.resource_filename(
+            __package__, "assets/CalrissianJobTemplate.yaml"
+        ))
 
     with open(path.join(path.dirname(__file__), yamlFileTemplate)) as f:
 

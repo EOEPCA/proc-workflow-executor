@@ -218,6 +218,10 @@ def read_execute(content: ExecuteContent, response: Response):
     # read ADES config variables
     with open(os.getenv("ADES_POD_ENV_VARS", None)) as f:
         pod_env_vars = yaml.load(f, Loader=yaml.FullLoader)
+        
+    # read ADES pod node selectors
+    with open(os.getenv("ADES_POD_NODESELECTORS", None)) as f:
+        pod_nodeselectors = yaml.load(f, Loader=yaml.FullLoader)
 
     # read USE_RESOURCE_MANAGER variable
     useResourceManagerStageOut = os.getenv("USE_RESOURCE_MANAGER", False)
@@ -385,6 +389,7 @@ def read_execute(content: ExecuteContent, response: Response):
                 workflow_name=workflow_name,
                 cwl_wrapper_config=cwl_wrapper_config,
                 pod_env_vars=pod_env_vars,
+                pod_nodeselectors=pod_nodeselectors,
                 max_ram=max_ram,
                 max_cores=max_cores,
                 workflowIdHashtag=workflowIdHashtag

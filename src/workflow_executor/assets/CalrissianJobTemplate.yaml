@@ -12,7 +12,7 @@ spec:
         fsGroup: 0
       containers:
         - name: calrissian
-          image: terradue/calrissian:0.9.1
+          image: {{calrissianImage}}
           command: ["calrissian"]
           args:
             - "--stdout"

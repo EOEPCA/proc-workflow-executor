@@ -203,12 +203,16 @@ def run(
 
         backofflimit = os.getenv("ADES_BACKOFF_LIMIT", None)
         nodeSelector = os.getenv("ADES_NODE_SELECTOR", None)
+        calrissianImage = os.getenv("CALRISSIAN_IMAGE", "terradue/calrissian:0.10.0")
 
         if backofflimit is not None:
             variables["backoff_limit"] = backofflimit
 
         if nodeSelector is not None:
             variables["nodeSelector"] = json.loads(nodeSelector)
+            
+        if calrissianImage is not None:
+            variables["calrissianImage"] = calrissianImage
 
         yaml_modified = template.render(variables)
 

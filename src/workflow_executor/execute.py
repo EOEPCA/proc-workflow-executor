@@ -72,7 +72,7 @@ def run(
     max_cores="2",
     cwl_wrapper_config=None,
     state=None,
-    pod_env_vars=None,
+    pod_env_vars=dict(),
     workflowIdHashtag=None
 ):
     # volumes

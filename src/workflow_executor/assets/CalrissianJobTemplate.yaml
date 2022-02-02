@@ -27,6 +27,8 @@ spec:
             - "{{tmp_outdir_prefix}}"
             - "--pod-env-vars"
             - "{{pod_env_vars_path}}"
+            - "--pod-nodeselectors"
+            - "{{pod_nodeselectors_path}}"
             - "--debug"
             # - "--leave-tmpdir"
             # - "--leave-container"

@@ -59,6 +59,7 @@ class FastApiTestCase(unittest.TestCase):
         os.environ["STORAGE_CLASS"] = "glusterfs-storage"
         os.environ["IMAGE_PULL_SECRETS"] = f"{THIS_DIR}/{app_name}_test/imagepullsecrets.json"
         os.environ["ADES_POD_ENV_VARS"] = f"{THIS_DIR}/{app_name}_test/pod_env_vars.yaml"
+        os.environ["ADES_POD_NODESELECTORS"] = f"{THIS_DIR}/{app_name}_test/pod_nodeselectors.yaml"
         os.environ["ADES_CWL_INPUTS"] = f"{THIS_DIR}/{app_name}_test/wfinputs.yaml"
 
 

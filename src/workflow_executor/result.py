@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 import time
@@ -39,6 +40,10 @@ def run(
             "outputVolumeClaimName": f"{volume_name_prefix}-output-data",
             "calrissianImage": os.getenv("CALRISSIAN_IMAGE", "terradue/calrissian:0.10.0")
         }
+
+    nodeSelector = os.getenv("ADES_NODE_SELECTOR", None)
+    if nodeSelector is not None:
+        variables["nodeSelector"] = json.loads(nodeSelector)
 
     yaml_modified = template.render(variables)
     body = yaml.safe_load(yaml_modified)

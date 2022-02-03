@@ -19,6 +19,12 @@ spec:
         volumeMounts:
         - mountPath: {{mount_folder}}/output-data
           name: calrissian-output-data
+      { % if nodeSelector is defined % }
+      nodeSelector:
+        { % for key,value in nodeSelector.items() % }
+          {{key}}: "{{ value }}"
+          { % endfor % }
+      { % endif % }
       restartPolicy: OnFailure
       volumes:
       - name: calrissian-output-data

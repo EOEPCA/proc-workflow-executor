@@ -146,9 +146,9 @@ def run(
     os.remove(pod_env_vars_tmp_path)
     
     ## Adding pod node selectors
-    pod_nodeselectors_tmp_path = "/tmp/pod_nodeselectors.json"
+    pod_nodeselectors_tmp_path = "/tmp/pod_nodeselectors.yaml"
     f = open(pod_nodeselectors_tmp_path, "w")
-    f.write(json.dumps(pod_nodeselectors))
+    f.write(yaml.dump(pod_nodeselectors))
     f.close()
     helpers.create_configmap(
         source=pod_nodeselectors_tmp_path,

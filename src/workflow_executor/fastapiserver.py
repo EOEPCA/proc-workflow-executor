@@ -220,8 +220,9 @@ def read_execute(content: ExecuteContent, response: Response):
         pod_env_vars = yaml.load(f, Loader=yaml.FullLoader)
         
     # read ADES pod node selectors
-    with open(os.getenv("ADES_POD_NODESELECTORS", None)) as f:
-        pod_nodeselectors = yaml.load(f, Loader=yaml.FullLoader)
+    if ( not os.getenv("ADES_POD_NODESELECTORS", None) ):
+        with open(os.getenv("ADES_POD_NODESELECTORS")) as f:
+            pod_nodeselectors = yaml.load(f, Loader=yaml.FullLoader)
 
     # read USE_RESOURCE_MANAGER variable
     useResourceManagerStageOut = os.getenv("USE_RESOURCE_MANAGER", False)

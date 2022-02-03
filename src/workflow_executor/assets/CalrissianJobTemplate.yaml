@@ -51,6 +51,9 @@ spec:
             - name: pod-env-vars
               mountPath: {{pod_env_vars_path}}
               subPath: pod-env-vars
+            - name: pod-nodeselectors
+              mountPath: {{pod_nodeselectors_path}}
+              subPath: pod-nodeselectors
           env:
             - name: CALRISSIAN_POD_NAME
               valueFrom:

@@ -6,12 +6,12 @@ spec:
   template:
     spec:
       securityContext:
-        runAsUser: 1000
-        runAsGroup: 3000
-        fsGroup: 2000
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
       containers:
       - name: view-results
-        image: terradue/calrissian:0.9.1
+        image: {{calrissianImage}}
         command:
         - "sh"
         - "-c"
@@ -19,6 +19,12 @@ spec:
         volumeMounts:
         - mountPath: {{mount_folder}}/output-data
           name: calrissian-output-data
+      { % if nodeSelector is defined % }
+      nodeSelector:
+        { % for key,value in nodeSelector.items() % }
+          {{key}}: "{{ value }}"
+          { % endfor % }
+      { % endif % }
       restartPolicy: OnFailure
       volumes:
       - name: calrissian-output-data

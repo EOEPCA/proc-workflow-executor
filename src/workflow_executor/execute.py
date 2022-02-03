@@ -220,6 +220,7 @@ def run(
 
         backofflimit = os.getenv("ADES_BACKOFF_LIMIT", None)
         nodeSelector = os.getenv("ADES_NODE_SELECTOR", None)
+        variables["calrissianImage"] = os.getenv("CALRISSIAN_IMAGE", "terradue/calrissian:0.10.0")
 
         if backofflimit is not None:
             variables["backoff_limit"] = backofflimit

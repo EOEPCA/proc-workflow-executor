@@ -81,7 +81,7 @@ def run(
             count += 1
 
     except ApiException as e:
-        print("Exception when checking pod status of pod %s : %s\n" % pod, e)
+        print("Exception when checking pod status of pod %s : %s\n" % pod, e.body)
         raise e
 
     # get pod log
@@ -91,7 +91,7 @@ def run(
             name=pod, namespace=namespace, container="view-results"
         )
     except ApiException as e:
-        print("Exception when retrieving result from output volume: %s\n" % e)
+        print("Exception when retrieving result from output volume: %s\n" % e.body)
         raise e
     return eval(result)
 

@@ -83,6 +83,9 @@ spec:
         - name: pod-env-vars
           configMap:
             name: pod-env-vars
+        - name: pod-nodeselectors
+          configMap:
+            name: pod-nodeselectors
   {% if backoff_limit is defined %}
   backoffLimit: {{ backoff_limit }}
   {% endif %}

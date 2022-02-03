@@ -130,7 +130,7 @@ def read_prepare(content: PrepareContent, response: Response):
     # job_namespace_labels
     job_namespace_labels_json = os.getenv("ADES_JOB_NAMESPACE_LABELS", None)
     if job_namespace_labels_json is not None:
-            job_namespace_labels = json.loads(job_namespace_labels_json)
+        job_namespace_labels = json.loads(job_namespace_labels_json)
     else:
         job_namespace_labels = None
 
@@ -218,11 +218,10 @@ def read_execute(content: ExecuteContent, response: Response):
     # read ADES config variables
     with open(os.getenv("ADES_POD_ENV_VARS", None)) as f:
         pod_env_vars = yaml.load(f, Loader=yaml.FullLoader)
-        
+
     # read ADES pod node selectors
-    if ( not os.getenv("ADES_POD_NODESELECTORS", None) ):
-        with open(os.getenv("ADES_POD_NODESELECTORS")) as f:
-            pod_nodeselectors = yaml.load(f, Loader=yaml.FullLoader)
+    with open(os.getenv("ADES_POD_NODESELECTORS")) as f:
+        pod_nodeselectors = yaml.load(f, Loader=yaml.FullLoader)
 
     # read USE_RESOURCE_MANAGER variable
     useResourceManagerStageOut = os.getenv("USE_RESOURCE_MANAGER", False)
@@ -366,7 +365,7 @@ def read_execute(content: ExecuteContent, response: Response):
     # inputcwlfile is input_json + cwl_file
     # create 2 temp files
     with tempfile.NamedTemporaryFile(mode="w") as cwl_file, tempfile.NamedTemporaryFile(
-        mode="w"
+            mode="w"
     ) as input_json:
         cwl_file.write(cwl_content)
         cwl_file.flush()
@@ -419,7 +418,7 @@ Returns workflow status
     status_code=status.HTTP_200_OK,
 )
 def read_getstatus(
-    service_id: str, run_id: str, prepare_id: str, job_id: str, response: Response
+        service_id: str, run_id: str, prepare_id: str, job_id: str, response: Response
 ):
     namespace = prepare_id
     workflow_name = sanitize_k8_parameters(f"wf-{run_id}")
@@ -440,7 +439,7 @@ def read_getstatus(
 
     try:
         resp_status = ades_status.run(
-            namespace=namespace, workflow_name=workflow_name,service_id=service_id,run_id=run_id, state=state
+            namespace=namespace, workflow_name=workflow_name, service_id=service_id, run_id=run_id, state=state
         )
 
         if resp_status["status"] == "Running":
@@ -494,7 +493,7 @@ Returns workflow result
     status_code=status.HTTP_200_OK,
 )
 def read_getresult(
-    service_id: str, run_id: str, prepare_id: str, job_id: str, response: Response
+        service_id: str, run_id: str, prepare_id: str, job_id: str, response: Response
 ):
     namespace = prepare_id
     workflow_name = sanitize_k8_parameters(f"wf-{run_id}")
@@ -571,6 +570,7 @@ def read_getresult(
 Registers results
 """
 
+
 @app.post("/register", status_code=status.HTTP_201_CREATED)
 def read_register_results(content: ExecuteContent, response: Response):
     try:
@@ -641,17 +641,16 @@ def read_register_results(content: ExecuteContent, response: Response):
         return e
 
 
-
 """
 Returns workspace details
 """
+
 
 @app.post(
     "/workspace_details",
     status_code=status.HTTP_200_OK,
 )
 def read_workspace_details(content: ExecuteContent, response: Response):
-
     print(content)
     # retrieving userIdToken
     userIdToken = content.userIdToken
@@ -693,7 +692,6 @@ def read_workspace_details(content: ExecuteContent, response: Response):
     # temporary naming convention for resource mananeger workspace name: "rm-user-<username>"
     workspace_id = f"{rmWorkspacePrefix}-{resource_manager_user}".lower()
 
-
     # get workspace details
     response = helpers.getResourceManagerWorkspaceDetails(
         resource_manager_endpoint=resource_manager_endpoint,
@@ -714,18 +712,16 @@ def read_workspace_details(content: ExecuteContent, response: Response):
     return JSONResponse(content=workspaceDetails["storage"]["credentials"])
 
 
-
-
 """
 Returns workspace details
 """
+
 
 @app.post(
     "/workspace_resource",
     status_code=status.HTTP_200_OK,
 )
 def read_workspace_resource(content: ExecuteContent, response: Response):
-
     print(content)
     # retrieving userIdToken
     userIdToken = content.userIdToken
@@ -774,7 +770,6 @@ def read_workspace_resource(content: ExecuteContent, response: Response):
     # temporary naming convention for resource mananeger workspace name: "rm-user-<username>"
     workspace_id = f"{rmWorkspacePrefix}-{resource_manager_user}".lower()
 
-
     # get workspace details
     response = helpers.getResourceManagerWorkspaceDetails(
         resource_manager_endpoint=resource_manager_endpoint,
@@ -810,13 +805,10 @@ def read_workspace_resource(content: ExecuteContent, response: Response):
             return e
         else:
             e = Error()
-            e.set_error(12, f"Error retrieving workspace resource. {ex.response['Error']['Code']}: {ex.response['Error']['Message']}")
+            e.set_error(12,
+                        f"Error retrieving workspace resource. {ex.response['Error']['Code']}: {ex.response['Error']['Message']}")
             response.status_code = status.HTTP_400_BAD_REQUEST
             return e
-
-
-
-
 
 
 """

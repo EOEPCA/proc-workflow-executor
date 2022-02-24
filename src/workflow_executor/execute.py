@@ -62,19 +62,19 @@ def process_inputs(cwl_document, job_input_json_file):
 
 
 def run(
-    namespace,
-    volume_name_prefix,
-    mount_folder,
-    cwl_document,
-    job_input_json,
-    workflow_name,
-    max_ram="4G",
-    max_cores="2",
-    cwl_wrapper_config=None,
-    state=None,
-    pod_env_vars=dict(),
-    pod_nodeselectors=None,
-    workflowIdHashtag=None
+        namespace,
+        volume_name_prefix,
+        mount_folder,
+        cwl_document,
+        job_input_json,
+        workflow_name,
+        max_ram="4G",
+        max_cores="2",
+        cwl_wrapper_config=None,
+        state=None,
+        pod_env_vars=dict(),
+        pod_nodeselectors=None,
+        workflowIdHashtag=None
 ):
     # volumes
     input_volume_name = volume_name_prefix + "-input-data"
@@ -94,7 +94,6 @@ def run(
     # remove std.out and std.err lines to let calrissian take care of it
     delete_line_by_full_match(wrapped_cwl_document, "  stderr: std.err")
     delete_line_by_full_match(wrapped_cwl_document, "  stdout: std.out")
-
 
     # wrapped_cwl_workflow_id = helpers.getCwlWorkflowId(wrapped_cwl_document)
     # no need to retrieve the id anymnore, the cwl-wrapper always sets the id "main"
@@ -144,7 +143,7 @@ def run(
         dataname="pod-env-vars",
     )
     os.remove(pod_env_vars_tmp_path)
-    
+
     ## Adding pod node selectors
     pod_nodeselectors_tmp_path = "/tmp/pod_nodeselectors.yaml"
     f = open(pod_nodeselectors_tmp_path, "w")
@@ -166,10 +165,10 @@ def run(
     # # Setup K8 configs
     apiclient = helpers.get_api_client()
     api_instance = client.BatchV1Api(apiclient)
-    
+
     yamlFileTemplate = os.getenv("CALRISSIAN_JOB_TEMPLATE_PATH", pkg_resources.resource_filename(
-            __package__, "assets/CalrissianJobTemplate.yaml"
-        ))
+        __package__, "assets/CalrissianJobTemplate.yaml"
+    ))
 
     with open(path.join(path.dirname(__file__), yamlFileTemplate)) as f:
 
@@ -219,15 +218,20 @@ def run(
         }
 
         backofflimit = os.getenv("ADES_BACKOFF_LIMIT", None)
+
+        # this is different from pod_nodeselectors_path
+        # nodeSelector is a json string
+        # pod_nodeselectors_path is a path to yaml
         nodeSelector = os.getenv("ADES_NODE_SELECTOR", None)
+        if nodeSelector is not None:
+            variables["nodeSelector"] = json.loads(nodeSelector)
+
         variables["calrissianImage"] = os.getenv("CALRISSIAN_IMAGE", "terradue/calrissian:0.10.0")
 
         if backofflimit is not None:
             variables["backoff_limit"] = backofflimit
 
-        if nodeSelector is not None:
-            variables["nodeSelector"] = json.loads(nodeSelector)
-
+        pprint(variables)
         yaml_modified = template.render(variables)
 
         body = yaml.safe_load(yaml_modified)
@@ -241,7 +245,7 @@ def run(
             return e
 
 
-def wrapcwl(cwl_document, cwl_wrapper_config=None, workflowId = None):
+def wrapcwl(cwl_document, cwl_wrapper_config=None, workflowId=None):
     directory = os.path.dirname(cwl_document)
 
     filename = os.path.basename(cwl_document)
@@ -256,30 +260,30 @@ def wrapcwl(cwl_document, cwl_wrapper_config=None, workflowId = None):
         k["rulez"] = (
             cwl_wrapper_config["rulez"]
             if cwl_wrapper_config.get("rulez") is not None
-            and str(cwl_wrapper_config.get("rulez")).replace(" ", "") != ""
-            and os.stat(cwl_wrapper_config.get("rulez")).st_size > 0
+               and str(cwl_wrapper_config.get("rulez")).replace(" ", "") != ""
+               and os.stat(cwl_wrapper_config.get("rulez")).st_size > 0
             else None
         )
         k["output"] = wrappedcwl
         k["maincwl"] = (
             cwl_wrapper_config["maincwl"]
             if cwl_wrapper_config.get("maincwl") is not None
-            and str(cwl_wrapper_config.get("maincwl")).replace(" ", "") != ""
-            and os.stat(cwl_wrapper_config.get("maincwl")).st_size > 0
+               and str(cwl_wrapper_config.get("maincwl")).replace(" ", "") != ""
+               and os.stat(cwl_wrapper_config.get("maincwl")).st_size > 0
             else None
         )
         k["stagein"] = (
             cwl_wrapper_config["stagein"]
             if cwl_wrapper_config.get("stagein") is not None
-            and str(cwl_wrapper_config.get("stagein")).replace(" ", "") != ""
-            and os.stat(cwl_wrapper_config.get("stagein")).st_size > 0
+               and str(cwl_wrapper_config.get("stagein")).replace(" ", "") != ""
+               and os.stat(cwl_wrapper_config.get("stagein")).st_size > 0
             else None
         )
         k["stageout"] = (
             cwl_wrapper_config["stageout"]
             if cwl_wrapper_config.get("stageout") is not None
-            and str(cwl_wrapper_config.get("stageout")).replace(" ", "") != ""
-            and os.stat(cwl_wrapper_config.get("stageout")).st_size > 0
+               and str(cwl_wrapper_config.get("stageout")).replace(" ", "") != ""
+               and os.stat(cwl_wrapper_config.get("stageout")).st_size > 0
             else None
         )
         k["assets"] = None

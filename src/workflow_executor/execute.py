@@ -145,17 +145,18 @@ def run(
     os.remove(pod_env_vars_tmp_path)
 
     ## Adding pod node selectors
-    pod_nodeselectors_tmp_path = "/tmp/pod_nodeselectors.yaml"
-    f = open(pod_nodeselectors_tmp_path, "w")
-    f.write(yaml.dump(pod_nodeselectors))
-    f.close()
-    helpers.create_configmap(
-        source=pod_nodeselectors_tmp_path,
-        namespace=namespace,
-        configmap_name="pod-nodeselectors",
-        dataname="pod-nodeselectors",
-    )
-    os.remove(pod_nodeselectors_tmp_path)
+    if pod_nodeselectors:
+        pod_nodeselectors_tmp_path = "/tmp/pod_nodeselectors.yaml"
+        f = open(pod_nodeselectors_tmp_path, "w")
+        f.write(yaml.dump(pod_nodeselectors))
+        f.close()
+        helpers.create_configmap(
+            source=pod_nodeselectors_tmp_path,
+            namespace=namespace,
+            configmap_name="pod-nodeselectors",
+            dataname="pod-nodeselectors",
+        )
+        os.remove(pod_nodeselectors_tmp_path)
 
     jsonInputFilename = ntpath.basename(tmppath)
     cwlDocumentFilename = ntpath.basename(wrapped_cwl_document)

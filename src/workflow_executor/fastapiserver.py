@@ -2,7 +2,7 @@ import json
 import os
 import tempfile
 import uvicorn
-from fastapi import FastAPI, Form, File, status, Response, Request
+from fastapi import Body, FastAPI, Form, File, status, Response, Request
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from workflow_executor import prepare, client, result, clean, helpers, execute
@@ -13,6 +13,10 @@ from pprint import pprint
 import yaml
 from typing import Optional
 from botocore.exceptions import ClientError
+
+
+from worker import create_task, prepare_resources_task
+from celery.result import AsyncResult
 
 # import rm_client
 from fastapi.exceptions import RequestValidationError, HTTPException
@@ -76,13 +80,48 @@ def read_root():
     return {"Hello": "World"}
 
 
+
+@app.post("/tasks", status_code=201)
+def run_task(payload = Body(...)):
+    task_type = payload["type"]
+    task = create_task.delay(int(task_type))
+    return JSONResponse({"task_id": task.id})
+
+
+@app.get("/tasks/{task_id}")
+def get_status(task_id):
+    task_result = AsyncResult(id=task_id, app=create_task)
+    result = {
+        "task_id": task_id,
+        "task_status": task_result.status,
+        "task_result": task_result.result
+    }
+    return JSONResponse(result)
+
 """
 Executes namespace preparation
 """
+@app.post("/prepare", status_code=status.HTTP_201_CREATED)
+def read_prepare(content: PrepareContent, response: Response):
 
+    prepare_id = sanitize_k8_parameters(f"{content.serviceID}{content.runID}")
+    if len(prepare_id) > 63:
+        prepare_id = shorten_namespace(
+            sanitize_k8_parameters(content.serviceID),
+            sanitize_k8_parameters(content.runID),
+        )
+
+    contentJson = json.dumps(content.__dict__)
+    task = prepare_resources_task.apply_async((contentJson, prepare_id),task_id=prepare_id)
+    return JSONResponse({"task_id": task.id})
 
 @app.post("/prepare", status_code=status.HTTP_201_CREATED)
 def read_prepare(content: PrepareContent, response: Response):
+
+
+
+
+
     state = client.State()
     print("Prepare POST")
 
@@ -220,8 +259,11 @@ def read_execute(content: ExecuteContent, response: Response):
         pod_env_vars = yaml.load(f, Loader=yaml.FullLoader)
 
     # read ADES pod node selectors
-    with open(os.getenv("ADES_POD_NODESELECTORS")) as f:
-        pod_nodeselectors = yaml.load(f, Loader=yaml.FullLoader)
+    pod_node_selector_file=os.getenv("ADES_POD_NODESELECTORS",None)
+    pod_nodeselectors= None
+    if pod_node_selector_file and os.path.exists(pod_node_selector_file):
+        with open(os.getenv("ADES_POD_NODESELECTORS")) as f:
+            pod_nodeselectors = yaml.load(f, Loader=yaml.FullLoader)
 
     # read USE_RESOURCE_MANAGER variable
     useResourceManagerStageOut = os.getenv("USE_RESOURCE_MANAGER", False)

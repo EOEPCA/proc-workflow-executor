@@ -77,6 +77,9 @@ class FastApiTestCase(unittest.TestCase):
                 "cwl": self.cwl_content,
             },
         )
+
+        print(self.cwl_content)
+
         assert response.status_code == 201
         assert response.json() == {"prepareID": self.prepareId}
 

@@ -216,12 +216,18 @@ def read_execute(content: ExecuteContent, response: Response):
         cwl_inputs = yaml.load(f, Loader=yaml.FullLoader)
 
     # read ADES config variables
-    with open(os.getenv("ADES_POD_ENV_VARS", None)) as f:
-        pod_env_vars = yaml.load(f, Loader=yaml.FullLoader)
+    if os.getenv("ADES_POD_ENV_VARS"):
+        with open(os.getenv("ADES_POD_ENV_VARS", None)) as f:
+            pod_env_vars = yaml.load(f, Loader=yaml.FullLoader)
+    else:
+        pod_env_vars = dict()
 
-    # read ADES pod node selectors
-    with open(os.getenv("ADES_POD_NODESELECTORS")) as f:
-        pod_nodeselectors = yaml.load(f, Loader=yaml.FullLoader)
+        # read ADES pod node selectors
+    if os.getenv("ADES_POD_NODESELECTORS"):
+        with open(os.getenv("ADES_POD_NODESELECTORS")) as f:
+            pod_nodeselectors = yaml.load(f, Loader=yaml.FullLoader)
+    else:
+        pod_nodeselectors = dict()
 
     # read USE_RESOURCE_MANAGER variable
     useResourceManagerStageOut = os.getenv("USE_RESOURCE_MANAGER", False)

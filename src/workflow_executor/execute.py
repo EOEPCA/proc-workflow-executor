@@ -73,7 +73,7 @@ def run(
         cwl_wrapper_config=None,
         state=None,
         pod_env_vars=dict(),
-        pod_nodeselectors=None,
+        pod_nodeselectors=dict(),
         workflowIdHashtag=None
 ):
     # volumes

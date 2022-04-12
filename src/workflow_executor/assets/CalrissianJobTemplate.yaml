@@ -63,16 +63,17 @@ spec:
                   fieldPath: metadata.name
         - name: sidecar-container-usage
           image: busybox
-          command: [ "sh","-c","while [ ! -f {{volumemount_output_data_mount_path}}/{{workflow_name}}/*/job-usage.json ]; do sleep 5; done; cat {{volumemount_output_data_mount_path}}/{{workflow_name}}/*/job-usage.json" ]
+          command: [ "sh","-c","while [ ! -f {{volumemount_output_data_mount_path}}/{{jobname}}/*/job-usage.json ]; do sleep 5; done; cat {{volumemount_output_data_mount_path}}/{{jobname}}/*/job-usage.json" ]
           volumeMounts:
-            - mountPath: /calrissian-output
-              name: calrissian-output
+            - mountPath: {{volumemount_output_data_mount_path}}
+              name: {{volumemount_output_data_name}}
         - name: sidecar-container-output
           image: busybox
-          command: [ "sh","-c","while [ ! -s {{volumemount_output_data_mount_path}}/{{workflow_name}}/*/{{workflow_name}}.res ]; do sleep 5; done; cat {{volumemount_output_data_mount_path}}/{{workflow_name}}/*/{{workflow_name}}.res" ]
+          command: [ "sh","-c","while [ ! -s {{volumemount_output_data_mount_path}}/{{jobname}}/*/{{workflow_name}}.res ]; do sleep 5; done; cat {{volumemount_output_data_mount_path}}/{{jobname}}/*/{{workflow_name}}.res" ]
           volumeMounts:
-            - mountPath: /calrissian-output
-              name: calrissian-output
+            - mountPath: {{volumemount_output_data_mount_path}}
+              name: {{volumemount_output_data_name}}
+
 
 
       {% if nodeSelector is defined %}

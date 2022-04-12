@@ -19,6 +19,8 @@ spec:
             - "{{stdout}}"
             - "--stderr"
             - "{{stderr}}"
+            - "--usage-report"
+            - "{{usage_report}}"
             - "--max-ram"
             - "{{max_ram}}"
             - "--max-cores"
@@ -63,13 +65,13 @@ spec:
                   fieldPath: metadata.name
         - name: sidecar-container-usage
           image: busybox
-          command: [ "sh","-c","while [ ! -f {{volumemount_output_data_mount_path}}/{{jobname}}/*/job-usage.json ]; do sleep 5; done; cat {{volumemount_output_data_mount_path}}/{{jobname}}/*/job-usage.json" ]
+          command: [ "sh","-c","while [ ! -f {{usage_report}} ]; do sleep 5; done; cat {{usage_report}}" ]
           volumeMounts:
             - mountPath: {{volumemount_output_data_mount_path}}
               name: {{volumemount_output_data_name}}
         - name: sidecar-container-output
           image: busybox
-          command: [ "sh","-c","while [ ! -s {{volumemount_output_data_mount_path}}/{{jobname}}/*/{{workflow_name}}.res ]; do sleep 5; done; cat {{volumemount_output_data_mount_path}}/{{jobname}}/*/{{workflow_name}}.res" ]
+          command: [ "sh","-c","while [ ! -s {{stdout}} ]; do sleep 5; done; cat {{stdout}}" ]
           volumeMounts:
             - mountPath: {{volumemount_output_data_mount_path}}
               name: {{volumemount_output_data_name}}

@@ -178,10 +178,13 @@ def run(
         variables = {
             "jobname": workflow_name,
             "stdout": path.join(
-                mount_folder, "output-data", workflow_name, f"{workflow_id}-output.json"
+                mount_folder, f"{workflow_id}-output.json"
             ),
             "stderr": path.join(
-                mount_folder, "output-data", workflow_name, f"{workflow_id}-stderr.log"
+                mount_folder, f"{workflow_id}-stderr.log"
+            ),
+            "usage_report": path.join(
+                mount_folder, "job-usage.json"
             ),
             "max_ram": max_ram,
             "max_cores": max_cores,

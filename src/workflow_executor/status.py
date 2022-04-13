@@ -29,17 +29,27 @@ def run(namespace, workflow_name, service_id, run_id, state=None):
             return status
         else:
             controller_uid = api_response.metadata.labels["controller-uid"]
-            logs = helpers.retrieveLogs(controller_uid, namespace)
+            calrissian_log, output_log, usage_log = helpers.retrieveLogs(controller_uid, namespace)
             helpers.storeLogs(
-                # TODO ESAEOEPCA-70
-                #logs, os.path.join(ADES_LOGS_PATH, f"{service_id}_{run_id}", f"{namespace}_calrissian.log")
-
-                logs, os.path.join(ADES_LOGS_PATH, f"{namespace}_calrissian.log")
+                calrissian_log, os.path.join(ADES_LOGS_PATH, f"{namespace}_calrissian.log")
+            )
+            helpers.storeLogs(
+                output_log, os.path.join(ADES_LOGS_PATH, f"{namespace}_output.json")
+            )
+            helpers.storeLogs(
+                calrissian_log, os.path.join(ADES_LOGS_PATH, f"{namespace}_usage.json")
             )
 
         # if processing has finished, store logs in /var/www/html/res
         if api_response.status.succeeded:
             status = {"status": "Success", "error": ""}
+
+
+
+
+
+
+
         elif api_response.status.failed:
             status = {
                 "status": "Failed",

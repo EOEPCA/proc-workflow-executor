@@ -177,13 +177,14 @@ def run(
         template = Template(f.read())
         variables = {
             "jobname": workflow_name,
+            "mount_folder": mount_folder,
             "stdout": path.join(
-                mount_folder, f"{workflow_id}-output.json"
+                mount_folder, 'output-data', f"{workflow_id}-output.json"
             ),
             "stderr": path.join(
-                mount_folder, f"{workflow_id}-stderr.log"
+                mount_folder, 'output-data', f"{workflow_id}-stderr.log"
             ),
-            "usage_report": path.join(
+            "usage_report":path.join(
                 mount_folder, "job-usage.json"
             ),
             "max_ram": max_ram,

@@ -142,7 +142,7 @@ def retrieveLogs(controllerUid, namespace):
             namespace=namespace,
             _return_http_data_only=True,
             _preload_content=False,
-            container="calrissian"
+            container="sidecar-container-output"
         ).data.decode("utf-8")
 
         usage_log = core_v1.read_namespaced_pod_log(
@@ -150,7 +150,7 @@ def retrieveLogs(controllerUid, namespace):
             namespace=namespace,
             _return_http_data_only=True,
             _preload_content=False,
-            container="calrissian"
+            container="sidecar-container-usage"
         ).data.decode("utf-8")
 
         return calrissian_log, output_log, usage_log

@@ -522,7 +522,7 @@ def read_getresult(
     try:
         resp_status = result.run(
             namespace=namespace,
-            workflowname=workflow_name,
+            workflow_name=workflow_name,
             mount_folder=mount_folder,
             volume_name_prefix=volume_name_prefix,
             outputfile=outputfile,

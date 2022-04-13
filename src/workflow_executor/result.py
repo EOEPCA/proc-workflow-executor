@@ -14,92 +14,32 @@ from workflow_executor import helpers
 
 
 def run(
-    namespace, mount_folder, volume_name_prefix, workflowname, outputfile, state=None
+    namespace, mount_folder, volume_name_prefix, workflow_name, outputfile, state=None
 ):
+
     # create an instance of the API class
     apiclient = helpers.get_api_client()
-    batch_api_instance = client.BatchV1Api(api_client=apiclient)
-    core_api_instance = client.CoreV1Api(api_client=apiclient)
-
-    # for further details check https://github.com/Duke-GCB/calrissian/blob/master/examples/ViewResultsJob.yaml
-    jobname = f"{workflowname}-view-results"
-
-    yamlFileTemplate = pkg_resources.resource_filename(
-        __package__, "assets/CalrissianViewResults.yaml"
-    )
-
-    with open(path.join(path.dirname(__file__), yamlFileTemplate)) as f:
-
-        print(f"Customizing stage-in job using the template {yamlFileTemplate} ")
-        template = Template(f.read())
-        variables = {
-            "jobname": jobname,
-            "mount_folder": mount_folder,
-            "workflowname": workflowname,
-            "outputfile": outputfile,
-            "outputVolumeClaimName": f"{volume_name_prefix}-output-data",
-            "calrissianImage": os.getenv("CALRISSIAN_IMAGE", "terradue/calrissian:0.10.0")
-        }
-
-    nodeSelector = os.getenv("ADES_NODE_SELECTOR", None)
-    if nodeSelector is not None:
-        variables["nodeSelector"] = json.loads(nodeSelector)
-
-    yaml_modified = template.render(variables)
-    body = yaml.safe_load(yaml_modified)
-    pprint(body)
+    api_instance = client.BatchV1Api(api_client=apiclient)
+    pretty = True
 
     try:
-        resp = batch_api_instance.create_namespaced_job(body=body, namespace=namespace)
-        print("Job created. status='%s'" % str(resp.status))
-    except ApiException as e:
-        print("Exception when submitting job: %s\n" % e, file=sys.stderr)
-        return e
-
-    # wait for job to finish
-    count = 0
-    ret = batch_api_instance.read_namespaced_job(name=jobname, namespace=namespace)
-    while not ret.status.conditions and count < 10:
-        time.sleep(3)
-        ret = batch_api_instance.read_namespaced_job(name=jobname, namespace=namespace)
-        count += 1
-    # get pod from job
-    try:
-        podlist = core_api_instance.list_namespaced_pod(
-            namespace=namespace, label_selector=f"job-name={jobname}"
+        api_response = api_instance.read_namespaced_job_status(
+            name=workflow_name, namespace=namespace, pretty=pretty
         )
-        pod = podlist.items[0].metadata.name
-    except ApiException as e:
-        print("Exception listing pods: %s\n" % e)
-        raise e
 
-    # get pod log
-    try:
-        print(f"Checking that pod {pod} is in ready state.")
-        podReady = False
-        count = 0
-        while not podReady and count < 100:
-            time.sleep(3)
-            podstatus = core_api_instance.read_namespaced_pod_status(
-                name=pod, namespace=namespace
-            )
-            podReady = is_ready(podstatus=podstatus)
-            count += 1
+        controller_uid = api_response.metadata.labels["controller-uid"]
+        calrissian_log, output_log, usage_log = helpers.retrieveLogs(controller_uid, namespace)
+
+        pprint(output_log)
+        return output_log
 
     except ApiException as e:
-        print("Exception when checking pod status of pod %s : %s\n" % pod, e.body)
+        print("Exception when calling get result: %s\n" % e)
         raise e
 
-    # get pod log
-    try:
-        print(f"retrieving logs of pod {pod}")
-        result = core_api_instance.read_namespaced_pod_log(
-            name=pod, namespace=namespace, container="view-results"
-        )
-    except ApiException as e:
-        print("Exception when retrieving result from output volume: %s\n" % e.body)
-        raise e
-    return eval(result)
+
+
+
 
 
 def is_ready(podstatus) -> bool:

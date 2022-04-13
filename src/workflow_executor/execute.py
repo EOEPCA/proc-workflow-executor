@@ -196,7 +196,7 @@ def run(
                 mount_folder, "input-data", workflow_name, f"{podNodeSelectorsFilename}"
             ),
             "tmpdir_prefix": f"{path.join(mount_folder, 'tmpout', workflow_name)}/",
-            "outdir": f"{path.join(mount_folder, 'output-data', workflow_name)}/",
+            "outdir": f"{path.join(mount_folder, 'output-data')}/",
             "argument1": path.join(
                 mount_folder,
                 "input-data",

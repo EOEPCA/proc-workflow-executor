@@ -129,14 +129,31 @@ def retrieveLogs(controllerUid, namespace):
     try:
         # For whatever reason the response returns only the first few characters unless
         # the call is for `_return_http_data_only=True, _preload_content=False`
-        pod_log_response = core_v1.read_namespaced_pod_log(
+        calrissian_log = core_v1.read_namespaced_pod_log(
             name=pod_name,
             namespace=namespace,
             _return_http_data_only=True,
             _preload_content=False,
-        )
-        pod_log = pod_log_response.data.decode("utf-8")
-        return pod_log
+            container="calrissian"
+        ).data.decode("utf-8")
+
+        output_log = core_v1.read_namespaced_pod_log(
+            name=pod_name,
+            namespace=namespace,
+            _return_http_data_only=True,
+            _preload_content=False,
+            container="sidecar-container-output"
+        ).data.decode("utf-8")
+
+        usage_log = core_v1.read_namespaced_pod_log(
+            name=pod_name,
+            namespace=namespace,
+            _return_http_data_only=True,
+            _preload_content=False,
+            container="sidecar-container-usage"
+        ).data.decode("utf-8")
+
+        return calrissian_log, output_log, usage_log
 
     except client.rest.ApiException as e:
         print("Exception when calling CoreV1Api->read_namespaced_pod_log: %s\n" % e)

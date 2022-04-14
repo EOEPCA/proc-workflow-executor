@@ -178,10 +178,13 @@ def run(
         variables = {
             "jobname": workflow_name,
             "stdout": path.join(
-                mount_folder, "output-data", workflow_name, f"{workflow_id}-output.json"
+                mount_folder, 'output-data', f"{workflow_id}-output.json"
             ),
             "stderr": path.join(
-                mount_folder, "output-data", workflow_name, f"{workflow_id}-stderr.log"
+                mount_folder, 'output-data', f"{workflow_id}-stderr.log"
+            ),
+            "usage_report": path.join(
+                mount_folder, 'output-data', f"{workflow_id}-usage.json"
             ),
             "max_ram": max_ram,
             "max_cores": max_cores,
@@ -193,7 +196,7 @@ def run(
                 mount_folder, "input-data", workflow_name, f"{podNodeSelectorsFilename}"
             ),
             "tmpdir_prefix": f"{path.join(mount_folder, 'tmpout', workflow_name)}/",
-            "outdir": f"{path.join(mount_folder, 'output-data', workflow_name)}/",
+            "outdir": f"{path.join(mount_folder, 'output-data')}/",
             "argument1": path.join(
                 mount_folder,
                 "input-data",

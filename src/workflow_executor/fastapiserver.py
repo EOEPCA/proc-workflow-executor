@@ -532,7 +532,7 @@ def read_getresult(
         pprint(resp_status)
 
         # retrieving s3 path containing the catalog.json file
-        s3ResultPath = os.path.dirname(resp_status["StacCatalogUri"])
+        # s3ResultPath = os.path.dirname(resp_status["StacCatalogUri"])
 
         json_compatible_item_data = {"wf_output": json.dumps(resp_status)}
         print("wf_output json: ")

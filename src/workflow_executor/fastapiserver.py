@@ -529,12 +529,13 @@ def read_getresult(
             state=state,
         )
         print("getresult success")
-        pprint(resp_status)
 
-        # retrieving s3 path containing the catalog.json file
-        # s3ResultPath = os.path.dirname(resp_status["StacCatalogUri"])
+        # removing wf_outputs
+        result_json = json.loads(resp_status)
+        if "wf_outputs" in result_json:
+            del result_json["wf_outputs"]
 
-        json_compatible_item_data = {"wf_output": json.dumps(resp_status)}
+        json_compatible_item_data = {"wf_output": json.dumps(result_json)}
         print("wf_output json: ")
         pprint(json_compatible_item_data)
         print("job success")
@@ -544,7 +545,6 @@ def read_getresult(
 
         if not keepworkspace:
             print("Removing Workspace")
-            # TODO add a dedicated method to clean the namespace
             clean_job_status = clean_job(namespace)
             if isinstance(clean_job_status, Error):
                 return clean_job_status

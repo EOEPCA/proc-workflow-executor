@@ -26,11 +26,9 @@ def run(
         api_response = api_instance.read_namespaced_job_status(
             name=workflow_name, namespace=namespace, pretty=pretty
         )
-
         controller_uid = api_response.metadata.labels["controller-uid"]
         calrissian_log, output_log, usage_log = helpers.retrieveLogs(controller_uid, namespace)
 
-        pprint(output_log)
         return output_log
 
     except ApiException as e:

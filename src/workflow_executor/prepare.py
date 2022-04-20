@@ -193,21 +193,6 @@ def run(
     print("####################################")
     print("######### Creating Persistent Volume Claims")
 
-    # metadata1 = client.V1ObjectMeta(name=f"{volumeName}-input-data", namespace=namespace)
-    # spec1 = client.V1PersistentVolumeClaimSpec(
-    #     # must be ReadWriteOnce for EBS
-    #     # access_modes=["ReadWriteOnce", "ReadOnlyMany"],
-    #     access_modes=["ReadWriteMany"],
-    #     resources=client.V1ResourceRequirements(
-    #         requests={"storage": inputVolumeSize}
-    #     )
-    # )
-    #
-    # if storage_class_name:
-    #     spec1.storage_class_name = storage_class_name
-    #
-    # body1 = client.V1PersistentVolumeClaim(metadata=metadata1, spec=spec1)
-
     metadata2 = client.V1ObjectMeta(name=f"{volumeName}-tmpout", namespace=namespace)
     spec2 = client.V1PersistentVolumeClaimSpec(
         access_modes=["ReadWriteMany"],

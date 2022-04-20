@@ -158,39 +158,6 @@ def run(
         raise e
 
     print("####################################")
-    print("######### Creating cluster-role-binding")
-    metadata = client.V1ObjectMeta(name=f"{namespace}-rbac", namespace=namespace)
-
-    role_ref = client.V1RoleRef(
-        api_group="rbac.authorization.k8s.io", kind="ClusterRole", name="cluster-admin"
-    )
-
-    subject = client.models.V1Subject(
-        api_group="", kind="ServiceAccount", name="default", namespace=namespace
-    )
-    subjects = []
-    subjects.append(subject)
-
-    body = client.V1ClusterRoleBinding(
-        metadata=metadata, role_ref=role_ref, subjects=subjects
-    )
-    pretty = True
-    try:
-        api_response = api_instance.create_cluster_role_binding(
-            body=body, pretty=pretty
-        )
-        pprint(api_response)
-    except ApiException as e:
-        if e.status == 409:
-            print(f"cluster-role-binding {namespace}-rbac has already been installed")
-        else:
-            print(
-                "Exception when creating cluster-role-binding: %s\n" % e,
-                file=sys.stderr,
-            )
-            raise e
-
-    print("####################################")
     print("######### Creating Persistent Volume Claims")
 
     metadata2 = client.V1ObjectMeta(name=f"{volumeName}-tmpout", namespace=namespace)

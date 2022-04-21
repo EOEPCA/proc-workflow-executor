@@ -61,7 +61,7 @@ def run(
     rule = client.V1PolicyRule(
         api_groups=["*"],
         resources=["pods", "pods/log"],
-        verbs=["create", "patch", "delete", "list", "watch"],
+        verbs=["create", "patch", "delete", "list", "watch", "get"],
     )
     rules = []
     rules.append(rule)
@@ -84,7 +84,7 @@ def run(
     rule = client.V1PolicyRule(
         api_groups=["*"],
         resources=["pods", "pods/log"],
-        verbs=["create", "patch", "delete", "list", "watch"],
+        verbs=["create", "patch", "delete", "list", "watch", "get"],
     )
     # verbs=['get', 'list'])
     rules = []
@@ -107,7 +107,7 @@ def run(
         name="pod-manager-default-binding", namespace=namespace
     )
 
-    role_ref = client.V1RoleRef(api_group="", kind="Role", name="pod-manager-role")
+    role_ref = client.V1RoleRef(api_group="rbac.authorization.k8s.io", kind="Role", name="pod-manager-role")
 
     subject = client.models.V1Subject(
         api_group="", kind="ServiceAccount", name="default", namespace=namespace
@@ -135,7 +135,7 @@ def run(
         name="log-reader-default-binding", namespace=namespace
     )
 
-    role_ref = client.V1RoleRef(api_group="", kind="Role", name="log-reader-role")
+    role_ref = client.V1RoleRef(api_group="rbac.authorization.k8s.io", kind="Role", name="log-reader-role")
 
     subject = client.models.V1Subject(
         api_group="", kind="ServiceAccount", name="default", namespace=namespace
@@ -158,55 +158,7 @@ def run(
         raise e
 
     print("####################################")
-    print("######### Creating cluster-role-binding")
-    metadata = client.V1ObjectMeta(name=f"{namespace}-rbac", namespace=namespace)
-
-    role_ref = client.V1RoleRef(
-        api_group="rbac.authorization.k8s.io", kind="ClusterRole", name="cluster-admin"
-    )
-
-    subject = client.models.V1Subject(
-        api_group="", kind="ServiceAccount", name="default", namespace=namespace
-    )
-    subjects = []
-    subjects.append(subject)
-
-    body = client.V1ClusterRoleBinding(
-        metadata=metadata, role_ref=role_ref, subjects=subjects
-    )
-    pretty = True
-    try:
-        api_response = api_instance.create_cluster_role_binding(
-            body=body, pretty=pretty
-        )
-        pprint(api_response)
-    except ApiException as e:
-        if e.status == 409:
-            print(f"cluster-role-binding {namespace}-rbac has already been installed")
-        else:
-            print(
-                "Exception when creating cluster-role-binding: %s\n" % e,
-                file=sys.stderr,
-            )
-            raise e
-
-    print("####################################")
     print("######### Creating Persistent Volume Claims")
-
-    # metadata1 = client.V1ObjectMeta(name=f"{volumeName}-input-data", namespace=namespace)
-    # spec1 = client.V1PersistentVolumeClaimSpec(
-    #     # must be ReadWriteOnce for EBS
-    #     # access_modes=["ReadWriteOnce", "ReadOnlyMany"],
-    #     access_modes=["ReadWriteMany"],
-    #     resources=client.V1ResourceRequirements(
-    #         requests={"storage": inputVolumeSize}
-    #     )
-    # )
-    #
-    # if storage_class_name:
-    #     spec1.storage_class_name = storage_class_name
-    #
-    # body1 = client.V1PersistentVolumeClaim(metadata=metadata1, spec=spec1)
 
     metadata2 = client.V1ObjectMeta(name=f"{volumeName}-tmpout", namespace=namespace)
     spec2 = client.V1PersistentVolumeClaimSpec(

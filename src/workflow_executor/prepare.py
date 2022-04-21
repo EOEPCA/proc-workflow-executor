@@ -61,7 +61,7 @@ def run(
     rule = client.V1PolicyRule(
         api_groups=["*"],
         resources=["pods", "pods/log"],
-        verbs=["create", "patch", "delete", "list", "watch"],
+        verbs=["create", "patch", "delete", "list", "watch", "get"],
     )
     rules = []
     rules.append(rule)
@@ -84,7 +84,7 @@ def run(
     rule = client.V1PolicyRule(
         api_groups=["*"],
         resources=["pods", "pods/log"],
-        verbs=["create", "patch", "delete", "list", "watch"],
+        verbs=["create", "patch", "delete", "list", "watch", "get"],
     )
     # verbs=['get', 'list'])
     rules = []
@@ -107,7 +107,7 @@ def run(
         name="pod-manager-default-binding", namespace=namespace
     )
 
-    role_ref = client.V1RoleRef(api_group="", kind="Role", name="pod-manager-role")
+    role_ref = client.V1RoleRef(api_group="rbac.authorization.k8s.io", kind="Role", name="pod-manager-role")
 
     subject = client.models.V1Subject(
         api_group="", kind="ServiceAccount", name="default", namespace=namespace
@@ -135,7 +135,7 @@ def run(
         name="log-reader-default-binding", namespace=namespace
     )
 
-    role_ref = client.V1RoleRef(api_group="", kind="Role", name="log-reader-role")
+    role_ref = client.V1RoleRef(api_group="rbac.authorization.k8s.io", kind="Role", name="log-reader-role")
 
     subject = client.models.V1Subject(
         api_group="", kind="ServiceAccount", name="default", namespace=namespace

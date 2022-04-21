@@ -6,6 +6,7 @@ metadata:
 spec:
   template:
     spec:
+      serviceAccountName: default
       securityContext:
         runAsUser: 0
         runAsGroup: 0
@@ -64,14 +65,16 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
         - name: sidecar-container-usage
-          image: busybox
-          command: [ "sh","-c","while [ ! -f {{usage_report}} ]; do sleep 5; done; cat {{usage_report}}" ]
+          image: bitnami/kubectl
+          tag: latest
+          command: [ "sh","-c","while [ -z $(kubectl get pods $HOSTNAME -o jsonpath='{.status.containerStatuses[0].state.terminated}') ]; do sleep 5; done; [ -f {{usage_report}} ] && cat {{usage_report}}" ]
           volumeMounts:
             - mountPath: {{volumemount_output_data_mount_path}}
               name: {{volumemount_output_data_name}}
         - name: sidecar-container-output
-          image: busybox
-          command: [ "sh","-c","while [ ! -s {{stdout}} ]; do sleep 5; done; cat {{stdout}}" ]
+          image: bitnami/kubectl
+          tag: latest
+          command: [ "sh","-c","while [ -z $(kubectl get pods $HOSTNAME -o jsonpath='{.status.containerStatuses[0].state.terminated}') ]; do sleep 5; done; [ -f {{stdout}} ] && cat {{stdout}}" ]
           volumeMounts:
             - mountPath: {{volumemount_output_data_mount_path}}
               name: {{volumemount_output_data_name}}

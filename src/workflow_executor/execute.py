@@ -111,9 +111,9 @@ def run(
     print(f"Uploading cwl and input json to {targetFolder}")
 
     # creating inputs configmap
-    temp_inputs_file = tempfile.NamedTemporaryFile()
-    try:
+    with tempfile.NamedTemporaryFile(mode="w") as temp_inputs_file:
         temp_inputs_file.write(json.dumps(cwl_input_json))
+        temp_inputs_file.flush()
         temp_inputs_file.seek(0)
 
         cwl_config = "cwl-config"
@@ -130,13 +130,12 @@ def run(
             configmap_name=inputs_config,
             dataname="inputs",
         )
-    finally:
-        temp_inputs_file.close()
+
 
     # creating pod env vars configmap
-    pod_env_vars_tmp_path = tempfile.NamedTemporaryFile()
-    try:
+    with tempfile.NamedTemporaryFile(mode="w") as pod_env_vars_tmp_path:
         pod_env_vars_tmp_path.write(json.dumps(pod_env_vars))
+        pod_env_vars_tmp_path.flush()
         pod_env_vars_tmp_path.seek(0)
         helpers.create_configmap(
             source=pod_env_vars_tmp_path.name,
@@ -144,13 +143,12 @@ def run(
             configmap_name="pod-env-vars",
             dataname="pod-env-vars",
         )
-    finally:
-        pod_env_vars_tmp_path.close()
+
 
     # creating pod node selectors configmap
-    pod_nodeselectors_tmp_path = tempfile.NamedTemporaryFile()
-    try:
+    with tempfile.NamedTemporaryFile(mode="w") as pod_nodeselectors_tmp_path:
         pod_nodeselectors_tmp_path.write(yaml.dump(pod_nodeselectors))
+        pod_nodeselectors_tmp_path.flush()
         pod_nodeselectors_tmp_path.seek(0)
         helpers.create_configmap(
             source=pod_nodeselectors_tmp_path.name,
@@ -158,8 +156,7 @@ def run(
             configmap_name="pod-nodeselectors",
             dataname="pod-nodeselectors",
         )
-    finally:
-        pod_nodeselectors_tmp_path.close()
+
 
     cwlDocumentFilename = ntpath.basename(wrapped_cwl_document)
     inputs_mount_path = "/tmp/inputs.json"

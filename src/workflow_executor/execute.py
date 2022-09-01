@@ -110,57 +110,61 @@ def run(
     targetFolder = path.join(mount_folder, "input-data")
     print(f"Uploading cwl and input json to {targetFolder}")
 
-    tmppath = "/tmp/inputs.json"
-    f = open("/tmp/inputs.json", "w")
-    f.write(json.dumps(cwl_input_json))
-    f.close()
+    # creating inputs configmap
+    temp_inputs_file = tempfile.NamedTemporaryFile()
+    try:
+        temp_inputs_file.write(json.dumps(cwl_input_json))
+        temp_inputs_file.seek(0)
 
-    cwl_config = "cwl-config"
-    inputs_config = "inputs-config"
-    helpers.create_configmap(
-        source=wrapped_cwl_document,
-        namespace=namespace,
-        configmap_name=cwl_config,
-        dataname="cwl",
-    )
-    helpers.create_configmap(
-        source=tmppath,
-        namespace=namespace,
-        configmap_name=inputs_config,
-        dataname="inputs",
-    )
-    os.remove(tmppath)
+        cwl_config = "cwl-config"
+        inputs_config = "inputs-config"
+        helpers.create_configmap(
+            source=wrapped_cwl_document,
+            namespace=namespace,
+            configmap_name=cwl_config,
+            dataname="cwl",
+        )
+        helpers.create_configmap(
+            source=temp_inputs_file.name,
+            namespace=namespace,
+            configmap_name=inputs_config,
+            dataname="inputs",
+        )
+    finally:
+        temp_inputs_file.close()
 
-    ## Adding pod env vars
-    pod_env_vars_tmp_path = "/tmp/pod_env_vars.json"
-    f = open(pod_env_vars_tmp_path, "w")
-    f.write(json.dumps(pod_env_vars))
-    f.close()
-    helpers.create_configmap(
-        source=pod_env_vars_tmp_path,
-        namespace=namespace,
-        configmap_name="pod-env-vars",
-        dataname="pod-env-vars",
-    )
-    os.remove(pod_env_vars_tmp_path)
+    # creating pod env vars configmap
+    pod_env_vars_tmp_path = tempfile.NamedTemporaryFile()
+    try:
+        pod_env_vars_tmp_path.write(json.dumps(pod_env_vars))
+        pod_env_vars_tmp_path.seek(0)
+        helpers.create_configmap(
+            source=pod_env_vars_tmp_path.name,
+            namespace=namespace,
+            configmap_name="pod-env-vars",
+            dataname="pod-env-vars",
+        )
+    finally:
+        pod_env_vars_tmp_path.close()
 
-    ## Adding pod node selectors
-    pod_nodeselectors_tmp_path = "/tmp/pod_nodeselectors.yaml"
-    f = open(pod_nodeselectors_tmp_path, "w")
-    f.write(yaml.dump(pod_nodeselectors))
-    f.close()
-    helpers.create_configmap(
-        source=pod_nodeselectors_tmp_path,
-        namespace=namespace,
-        configmap_name="pod-nodeselectors",
-        dataname="pod-nodeselectors",
-    )
-    os.remove(pod_nodeselectors_tmp_path)
+    # creating pod node selectors configmap
+    pod_nodeselectors_tmp_path = tempfile.NamedTemporaryFile()
+    try:
+        pod_nodeselectors_tmp_path.write(yaml.dump(pod_nodeselectors))
+        pod_nodeselectors_tmp_path.seek(0)
+        helpers.create_configmap(
+            source=pod_nodeselectors_tmp_path.name,
+            namespace=namespace,
+            configmap_name="pod-nodeselectors",
+            dataname="pod-nodeselectors",
+        )
+    finally:
+        pod_nodeselectors_tmp_path.close()
 
-    jsonInputFilename = ntpath.basename(tmppath)
     cwlDocumentFilename = ntpath.basename(wrapped_cwl_document)
-    podEnvVarsFilename = ntpath.basename(pod_env_vars_tmp_path)
-    podNodeSelectorsFilename = ntpath.basename(pod_nodeselectors_tmp_path)
+    inputs_mount_path = "/tmp/inputs.json"
+    pod_env_vars_mount_path = "/tmp/pod_env_vars.json"
+    pod_node_selectors_mount_path = "/tmp/pod_nodeselectors.yaml"
 
     # # Setup K8 configs
     apiclient = helpers.get_api_client()
@@ -190,10 +194,10 @@ def run(
             "max_cores": max_cores,
             "tmp_outdir_prefix": f"{path.join(mount_folder, 'tmpout', workflow_name)}/",
             "pod_env_vars_path": path.join(
-                mount_folder, "input-data", workflow_name, f"{podEnvVarsFilename}"
+                mount_folder, "input-data", workflow_name, f"{pod_env_vars_mount_path}"
             ),
             "pod_nodeselectors_path": path.join(
-                mount_folder, "input-data", workflow_name, f"{podNodeSelectorsFilename}"
+                mount_folder, "input-data", workflow_name, f"{pod_node_selectors_mount_path}"
             ),
             "tmpdir_prefix": f"{path.join(mount_folder, 'tmpout', workflow_name)}/",
             "outdir": f"{path.join(mount_folder, 'output-data')}/",
@@ -204,13 +208,13 @@ def run(
                 f"{cwlDocumentFilename}#{wrapped_cwl_workflow_id}",
             ),
             "argument2": path.join(
-                mount_folder, "input-data", workflow_name, jsonInputFilename
+                mount_folder, "input-data", workflow_name, inputs_mount_path
             ),
             "cwl_file_path": path.join(
                 mount_folder, "input-data", workflow_name, f"{cwlDocumentFilename}"
             ),
             "inputs_file_path": path.join(
-                mount_folder, "input-data", workflow_name, jsonInputFilename
+                mount_folder, "input-data", workflow_name, inputs_mount_path
             ),
             "volumemount_tmpout_mount_path": path.join(mount_folder, "tmpout"),
             "volumemount_tmpout_name": tmpout_volume_name,

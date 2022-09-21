@@ -817,6 +817,29 @@ def read_workspace_resource(content: ExecuteContent, response: Response):
             return e
 
 
+
+@app.delete(
+    "/jobs/{job_id}",
+    status_code=status.HTTP_200_OK,
+)
+def read_dismiss_job( job_id: str, response: Response):
+    dismiss_response_json = {
+        "jobID": "81574318-1eb1-4d7c-af61-4b3fbcf33c4f",
+        "status": "dismissed",
+        "message": "Job dismissed",
+        "progress": 56,
+        "links": [
+            {
+                "href": "http://processing.example.org/oapi-p/jobs",
+                "rel": "up",
+                "type": "application/json",
+                "title": "The job list of this server"
+            }
+        ]
+    }
+    return JSONResponse(content=dismiss_response_json)
+
+
 """
 Removes Kubernetes namespace
 """

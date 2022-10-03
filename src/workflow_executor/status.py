@@ -6,7 +6,6 @@ from kubernetes.client.rest import ApiException
 from kubernetes import client, config
 from workflow_executor import helpers
 
-
 ADES_LOGS_PATH = "/var/www/_run/res"
 
 
@@ -27,30 +26,47 @@ def run(namespace, workflow_name, service_id, run_id, state=None):
             status = {"status": "Running", "error": ""}
             pprint(status)
             return status
-        else:
+        elif api_response.status.succeeded:
             controller_uid = api_response.metadata.labels["controller-uid"]
-            calrissian_log, output_log, usage_log = helpers.retrieveLogs(controller_uid, namespace)
+
+            # Retrieving and storing CALRISSIAN logs
+            calrissian_log = helpers.retrieveLogs(controllerUid=controller_uid, namespace=namespace,
+                                                  container="calrissian")
             helpers.storeLogs(
                 calrissian_log, os.path.join(ADES_LOGS_PATH, f"{namespace}_calrissian.log")
             )
+
+            # Retrieving and storing OUTPUT logs
+            output_log_file = os.path.join(ADES_LOGS_PATH, f"{namespace}_output.json")
+            output_log = helpers.retrieveLogs(controllerUid=controller_uid, namespace=namespace,
+                                              container="sidecar-container-output")
+            helpers.storeLogs(output_log, output_log_file)
+
+            # Retrieving and storing USAGE logs
+            usage_log = helpers.retrieveLogs(controllerUid=controller_uid, namespace=namespace,
+                                             container="sidecar-container-usage")
             helpers.storeLogs(
-                output_log, os.path.join(ADES_LOGS_PATH, f"{namespace}_output.json")
-            )
-            helpers.storeLogs(
-                calrissian_log, os.path.join(ADES_LOGS_PATH, f"{namespace}_usage.json")
+                usage_log, os.path.join(ADES_LOGS_PATH, f"{namespace}_usage.json")
             )
 
-        # if processing has finished, store logs in /var/www/html/res
-        if api_response.status.succeeded:
+            # returning Success status
             status = {"status": "Success", "error": ""}
 
-
-
-
-
-
-
         elif api_response.status.failed:
+
+            controller_uid = api_response.metadata.labels["controller-uid"]
+
+            exception = client.rest.ApiException(reason="forced failed")
+            exception.body = "forced failed"
+            raise exception
+            # Retrieving and storing CALRISSIAN logs
+            calrissian_log = helpers.retrieveLogs(controllerUid=controller_uid, namespace=namespace,
+                                                  container="calrissian")
+            helpers.storeLogs(
+                calrissian_log, os.path.join(ADES_LOGS_PATH, f"{namespace}_calrissian.log")
+            )
+
+            # returning Failed status
             status = {
                 "status": "Failed",
                 "error": api_response.status.conditions[0].message,
@@ -62,3 +78,7 @@ def run(namespace, workflow_name, service_id, run_id, state=None):
     except ApiException as e:
         print("Exception when calling get status: %s\n" % e)
         raise e
+    except Exception as e:
+        print("Exception when calling get status:: %s\n" % e)
+        raise e
+

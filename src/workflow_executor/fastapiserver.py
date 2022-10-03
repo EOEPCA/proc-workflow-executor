@@ -132,7 +132,10 @@ def read_prepare(content: PrepareContent, response: Response):
     if job_namespace_labels_json is not None:
         job_namespace_labels = json.loads(job_namespace_labels_json)
     else:
-        job_namespace_labels = None
+        job_namespace_labels = {}
+
+    # this label is usefull to link the k8s job to the zooproject process
+    job_namespace_labels["processid"] = content.runID
 
     print("namespace: %s" % prepare_id)
     print(f"tmpVolumeSize: {tmpVolumeSize}")
@@ -521,12 +524,7 @@ def read_getresult(
 
     try:
         resp_status = result.run(
-            namespace=namespace,
-            workflow_name=workflow_name,
-            mount_folder=mount_folder,
-            volume_name_prefix=volume_name_prefix,
-            outputfile=outputfile,
-            state=state,
+            namespace=namespace
         )
         print("getresult success")
 
@@ -815,6 +813,41 @@ def read_workspace_resource(content: ExecuteContent, response: Response):
                         f"Error retrieving workspace resource. {ex.response['Error']['Code']}: {ex.response['Error']['Message']}")
             response.status_code = status.HTTP_400_BAD_REQUEST
             return e
+
+
+@app.delete(
+    "/jobs/{job_id}",
+    status_code=status.HTTP_200_OK,
+)
+def read_dismiss_job(job_id: str, response: Response):
+    label_selector = f"processid={job_id}"
+
+    # retrieve the namespace to delete from jobid
+    namespace_list = helpers.get_namespace_list_from_label(label_selector=label_selector)
+
+    if len(namespace_list.items) == 0:
+        # no namespaces found
+        dismiss_response_json = {
+            "jobID": job_id,
+            "status": "not_found",
+            "message": "Job not found"
+        }
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return JSONResponse(status_code=404, content=dismiss_response_json)
+
+    else:
+        # namespace found
+        namespace_name = namespace_list.items[0].metadata.name
+        print(f"Removing namespace: {namespace_name}")
+        clean_status = clean_job(namespace_name)
+        print(clean_status)
+        dismiss_response_json = {
+            "jobID": job_id,
+            "status": "dismissed",
+            "message": "Job dismissed"
+        }
+        print(f"Removing namespace done")
+    return JSONResponse(content=dismiss_response_json)
 
 
 """

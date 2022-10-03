@@ -3,13 +3,12 @@ import os
 # import rm_client
 import sys
 from pprint import pprint
-
 import yaml
 from kubernetes import client, config
 from kubernetes.client import Configuration
 from kubernetes.client.rest import ApiException
 import boto3
-
+from tenacity import retry, wait_fixed, stop_after_attempt
 
 from . import eoepcaclient
 import json
@@ -114,7 +113,8 @@ def getCwlResourceRequirement(cwl_content):
                 return None
 
 
-def retrieveLogs(controllerUid, namespace):
+@retry(reraise=True, wait=wait_fixed(2), stop=stop_after_attempt(3))
+def retrieveLogs(controllerUid, namespace, container="calrissian"):
     # create an instance of the API class
     apiclient = get_api_client()
     api_instance = client.BatchV1Api(api_client=apiclient)
@@ -129,34 +129,20 @@ def retrieveLogs(controllerUid, namespace):
     try:
         # For whatever reason the response returns only the first few characters unless
         # the call is for `_return_http_data_only=True, _preload_content=False`
-        calrissian_log = core_v1.read_namespaced_pod_log(
+        log = core_v1.read_namespaced_pod_log(
             name=pod_name,
             namespace=namespace,
             _return_http_data_only=True,
             _preload_content=False,
-            container="calrissian"
+            container=container
         ).data.decode("utf-8")
-
-        output_log = core_v1.read_namespaced_pod_log(
-            name=pod_name,
-            namespace=namespace,
-            _return_http_data_only=True,
-            _preload_content=False,
-            container="sidecar-container-output"
-        ).data.decode("utf-8")
-
-        usage_log = core_v1.read_namespaced_pod_log(
-            name=pod_name,
-            namespace=namespace,
-            _return_http_data_only=True,
-            _preload_content=False,
-            container="sidecar-container-usage"
-        ).data.decode("utf-8")
-
-        return calrissian_log, output_log, usage_log
+        return log
 
     except client.rest.ApiException as e:
         print("Exception when calling CoreV1Api->read_namespaced_pod_log: %s\n" % e)
+        raise e
+    except Exception as e:
+        print("Exception when retrieving pod log: %s\n" % e)
         raise e
 
 
@@ -220,8 +206,7 @@ def registerResults(
     return registration_details
 
 
-def getS3Resource(aws_access_key_id,aws_secret_access_key,endpoint_url,region_name,bucket_name, resource_key):
-
+def getS3Resource(aws_access_key_id, aws_secret_access_key, endpoint_url, region_name, bucket_name, resource_key):
     prefix = f"s3://{bucket_name}/"
     if resource_key.startswith(prefix):
         resource_key = resource_key[len(prefix):]
@@ -236,3 +221,15 @@ def getS3Resource(aws_access_key_id,aws_secret_access_key,endpoint_url,region_na
     )
     obj = s3_client.get_object(Bucket=bucket_name, Key=resource_key)
     return obj['Body'].read().decode('utf-8')
+
+
+def get_namespace_list_from_label(label_selector):
+    # retrieve the namespace to delete from jobid
+    apiclient = get_api_client()
+    api_instance = client.CoreV1Api(api_client=apiclient)
+    try:
+        namespace_list = api_instance.list_namespace(label_selector=label_selector)
+    except ApiException as e:
+        print("Exception when calling dismiss: %s\n" % e)
+        raise e
+    return namespace_list

@@ -524,12 +524,7 @@ def read_getresult(
 
     try:
         resp_status = result.run(
-            namespace=namespace,
-            workflow_name=workflow_name,
-            mount_folder=mount_folder,
-            volume_name_prefix=volume_name_prefix,
-            outputfile=outputfile,
-            state=state,
+            namespace=namespace
         )
         print("getresult success")
 

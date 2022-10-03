@@ -42,7 +42,8 @@ def run(namespace, workflow_name, service_id, run_id, state=None):
                 output_log = helpers.retrieveLogs(controllerUid=controller_uid, namespace=namespace,
                                                       container="sidecar-container-output")
             except Exception as e:
-                # if the python kubernetes is encountering
+                # if the python kubernetes library is encountering issues retrieving the output log file,
+                #
                 ades_stageout_output = os.getenv("ADES_STAGEOUT_OUTPUT")
                 output_log = f"{ades_stageout_output}/{service_id}/catalog.json"
             helpers.storeLogs(output_log, output_log_file)

@@ -16,7 +16,7 @@ dependencies:
   - pyjwkest==1.4.2
   - pycrypto==2.6.1
   - boto3==1.18.40
-  - tenacity==5.1.1
+  - tenacity
   - pip
   - pip:
       - eoepca-scim==2.7.4

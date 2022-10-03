@@ -10,7 +10,6 @@ from kubernetes.client import Configuration
 from kubernetes.client.rest import ApiException
 import boto3
 
-
 from . import eoepcaclient
 import json
 
@@ -220,8 +219,7 @@ def registerResults(
     return registration_details
 
 
-def getS3Resource(aws_access_key_id,aws_secret_access_key,endpoint_url,region_name,bucket_name, resource_key):
-
+def getS3Resource(aws_access_key_id, aws_secret_access_key, endpoint_url, region_name, bucket_name, resource_key):
     prefix = f"s3://{bucket_name}/"
     if resource_key.startswith(prefix):
         resource_key = resource_key[len(prefix):]
@@ -236,3 +234,15 @@ def getS3Resource(aws_access_key_id,aws_secret_access_key,endpoint_url,region_na
     )
     obj = s3_client.get_object(Bucket=bucket_name, Key=resource_key)
     return obj['Body'].read().decode('utf-8')
+
+
+def get_namespace_list_from_label(label_selector):
+    # retrieve the namespace to delete from jobid
+    apiclient = get_api_client()
+    api_instance = client.CoreV1Api(api_client=apiclient)
+    try:
+        namespace_list = api_instance.list_namespace(label_selector=label_selector)
+    except ApiException as e:
+        print("Exception when calling dismiss: %s\n" % e)
+        raise e
+    return namespace_list

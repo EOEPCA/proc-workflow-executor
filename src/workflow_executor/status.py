@@ -38,19 +38,13 @@ def run(namespace, workflow_name, service_id, run_id, state=None):
 
             # Retrieving and storing OUTPUT logs
             output_log_file = os.path.join(ADES_LOGS_PATH, f"{namespace}_output.json")
-            try:
-                output_log = helpers.retrieveLogs(controllerUid=controller_uid, namespace=namespace,
-                                                      container="sidecar-container-output")
-            except Exception as e:
-                # if the python kubernetes library is encountering issues retrieving the output log file,
-                #
-                ades_stageout_output = os.getenv("ADES_STAGEOUT_OUTPUT")
-                output_log = f"{ades_stageout_output}/{service_id}/catalog.json"
+            output_log = helpers.retrieveLogs(controllerUid=controller_uid, namespace=namespace,
+                                              container="sidecar-container-output")
             helpers.storeLogs(output_log, output_log_file)
 
             # Retrieving and storing USAGE logs
             usage_log = helpers.retrieveLogs(controllerUid=controller_uid, namespace=namespace,
-                                                  container="sidecar-container-usage")
+                                             container="sidecar-container-usage")
             helpers.storeLogs(
                 usage_log, os.path.join(ADES_LOGS_PATH, f"{namespace}_usage.json")
             )
@@ -62,6 +56,9 @@ def run(namespace, workflow_name, service_id, run_id, state=None):
 
             controller_uid = api_response.metadata.labels["controller-uid"]
 
+            exception = client.rest.ApiException(reason="forced failed")
+            exception.body = "forced failed"
+            raise exception
             # Retrieving and storing CALRISSIAN logs
             calrissian_log = helpers.retrieveLogs(controllerUid=controller_uid, namespace=namespace,
                                                   container="calrissian")
@@ -81,3 +78,7 @@ def run(namespace, workflow_name, service_id, run_id, state=None):
     except ApiException as e:
         print("Exception when calling get status: %s\n" % e)
         raise e
+    except Exception as e:
+        print("Exception when calling get status:: %s\n" % e)
+        raise e
+

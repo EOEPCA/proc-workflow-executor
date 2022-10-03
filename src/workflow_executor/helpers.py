@@ -113,7 +113,7 @@ def getCwlResourceRequirement(cwl_content):
                 return None
 
 
-@retry(wait=wait_fixed(2), stop=stop_after_attempt(3))
+@retry(reraise=True, wait=wait_fixed(2), stop=stop_after_attempt(3))
 def retrieveLogs(controllerUid, namespace, container="calrissian"):
     # create an instance of the API class
     apiclient = get_api_client()
@@ -140,6 +140,9 @@ def retrieveLogs(controllerUid, namespace, container="calrissian"):
 
     except client.rest.ApiException as e:
         print("Exception when calling CoreV1Api->read_namespaced_pod_log: %s\n" % e)
+        raise e
+    except Exception as e:
+        print("Exception when retrieving pod log: %s\n" % e)
         raise e
 
 

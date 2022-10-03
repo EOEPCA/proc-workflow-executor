@@ -3,12 +3,12 @@ import os
 # import rm_client
 import sys
 from pprint import pprint
-
 import yaml
 from kubernetes import client, config
 from kubernetes.client import Configuration
 from kubernetes.client.rest import ApiException
 import boto3
+from tenacity import retry, wait_fixed, stop_after_attempt
 
 from . import eoepcaclient
 import json
@@ -113,7 +113,8 @@ def getCwlResourceRequirement(cwl_content):
                 return None
 
 
-def retrieveLogs(controllerUid, namespace):
+@retry(wait=wait_fixed(2), stop=stop_after_attempt(3))
+def retrieveLogs(controllerUid, namespace, container="calrissian"):
     # create an instance of the API class
     apiclient = get_api_client()
     api_instance = client.BatchV1Api(api_client=apiclient)
@@ -128,31 +129,14 @@ def retrieveLogs(controllerUid, namespace):
     try:
         # For whatever reason the response returns only the first few characters unless
         # the call is for `_return_http_data_only=True, _preload_content=False`
-        calrissian_log = core_v1.read_namespaced_pod_log(
+        log = core_v1.read_namespaced_pod_log(
             name=pod_name,
             namespace=namespace,
             _return_http_data_only=True,
             _preload_content=False,
-            container="calrissian"
+            container=container
         ).data.decode("utf-8")
-
-        output_log = core_v1.read_namespaced_pod_log(
-            name=pod_name,
-            namespace=namespace,
-            _return_http_data_only=True,
-            _preload_content=False,
-            container="sidecar-container-output"
-        ).data.decode("utf-8")
-
-        usage_log = core_v1.read_namespaced_pod_log(
-            name=pod_name,
-            namespace=namespace,
-            _return_http_data_only=True,
-            _preload_content=False,
-            container="sidecar-container-usage"
-        ).data.decode("utf-8")
-
-        return calrissian_log, output_log, usage_log
+        return log
 
     except client.rest.ApiException as e:
         print("Exception when calling CoreV1Api->read_namespaced_pod_log: %s\n" % e)

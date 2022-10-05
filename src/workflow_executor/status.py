@@ -58,9 +58,6 @@ def run(namespace, workflow_name, service_id, run_id, state=None):
 
             controller_uid = api_response.metadata.labels["controller-uid"]
 
-            exception = client.rest.ApiException(reason="forced failed")
-            exception.body = "forced failed"
-            raise exception
             # Retrieving and storing CALRISSIAN logs
             calrissian_log_array = helpers.retrieve_logs(controller_uid=controller_uid, namespace=namespace,
                                                    container="calrissian")
@@ -84,4 +81,3 @@ def run(namespace, workflow_name, service_id, run_id, state=None):
     except Exception as e:
         print("Exception when calling get status:: %s\n" % e)
         raise e
-

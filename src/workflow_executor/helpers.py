@@ -114,37 +114,40 @@ def getCwlResourceRequirement(cwl_content):
 
 
 @retry(reraise=True, wait=wait_fixed(2), stop=stop_after_attempt(3))
-def retrieveLogs(controllerUid, namespace, container="calrissian"):
+def retrieve_logs(controller_uid, namespace, container="calrissian"):
     # create an instance of the API class
     apiclient = get_api_client()
     api_instance = client.BatchV1Api(api_client=apiclient)
     core_v1 = client.CoreV1Api(api_client=apiclient)
 
     # controllerUid = api_response.metadata.labels["controller-uid"]
-    pod_label_selector = "controller-uid=" + controllerUid
+    pod_label_selector = "controller-uid=" + controller_uid
     pods_list = core_v1.list_namespaced_pod(
         namespace=namespace, label_selector=pod_label_selector, timeout_seconds=10
     )
-    pod_name = pods_list.items[0].metadata.name
-    try:
-        # For whatever reason the response returns only the first few characters unless
-        # the call is for `_return_http_data_only=True, _preload_content=False`
-        log = core_v1.read_namespaced_pod_log(
-            name=pod_name,
-            namespace=namespace,
-            _return_http_data_only=True,
-            _preload_content=False,
-            container=container
-        ).data.decode("utf-8")
-        return log
 
-    except client.rest.ApiException as e:
-        print("Exception when calling CoreV1Api->read_namespaced_pod_log: %s\n" % e)
-        raise e
-    except Exception as e:
-        print("Exception when retrieving pod log: %s\n" % e)
-        raise e
+    log_array = []
+    for pod in pods_list.items:
+        pod_name = pod.metadata.name
+        try:
+            # For whatever reason the response returns only the first few characters unless
+            # the call is for `_return_http_data_only=True, _preload_content=False`
+            log = core_v1.read_namespaced_pod_log(
+                name=pod_name,
+                namespace=namespace,
+                _return_http_data_only=True,
+                _preload_content=False,
+                container=container
+            ).data.decode("utf-8")
+            log_array.append(log)
 
+        except client.rest.ApiException as e:
+            print("Exception when calling CoreV1Api->read_namespaced_pod_log: %s\n" % e)
+            raise e
+        except Exception as e:
+            print("Exception when retrieving pod log: %s\n" % e)
+            raise e
+    return log_array
 
 def storeLogs(logs, path):
     f = open(path, "a")

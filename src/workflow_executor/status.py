@@ -30,21 +30,23 @@ def run(namespace, workflow_name, service_id, run_id, state=None):
             controller_uid = api_response.metadata.labels["controller-uid"]
 
             # Retrieving and storing CALRISSIAN logs
-            calrissian_log = helpers.retrieveLogs(controllerUid=controller_uid, namespace=namespace,
-                                                  container="calrissian")
-            helpers.storeLogs(
-                calrissian_log, os.path.join(ADES_LOGS_PATH, f"{namespace}_calrissian.log")
-            )
+            calrissian_log_array = helpers.retrieve_logs(controller_uid=controller_uid, namespace=namespace,
+                                                   container="calrissian")
+
+            for idx, calrissian_log_attempt in enumerate(calrissian_log_array):
+                helpers.storeLogs(
+                    calrissian_log_attempt, os.path.join(ADES_LOGS_PATH, f"{namespace}_{idx}_calrissian.log")
+                )
 
             # Retrieving and storing OUTPUT logs
             output_log_file = os.path.join(ADES_LOGS_PATH, f"{namespace}_output.json")
-            output_log = helpers.retrieveLogs(controllerUid=controller_uid, namespace=namespace,
-                                              container="sidecar-container-output")
+            output_log = helpers.retrieve_logs(controller_uid=controller_uid, namespace=namespace,
+                                               container="sidecar-container-output")[-1]
             helpers.storeLogs(output_log, output_log_file)
 
             # Retrieving and storing USAGE logs
-            usage_log = helpers.retrieveLogs(controllerUid=controller_uid, namespace=namespace,
-                                             container="sidecar-container-usage")
+            usage_log = helpers.retrieve_logs(controller_uid=controller_uid, namespace=namespace,
+                                              container="sidecar-container-usage")[-1]
             helpers.storeLogs(
                 usage_log, os.path.join(ADES_LOGS_PATH, f"{namespace}_usage.json")
             )
@@ -56,15 +58,13 @@ def run(namespace, workflow_name, service_id, run_id, state=None):
 
             controller_uid = api_response.metadata.labels["controller-uid"]
 
-            exception = client.rest.ApiException(reason="forced failed")
-            exception.body = "forced failed"
-            raise exception
             # Retrieving and storing CALRISSIAN logs
-            calrissian_log = helpers.retrieveLogs(controllerUid=controller_uid, namespace=namespace,
-                                                  container="calrissian")
-            helpers.storeLogs(
-                calrissian_log, os.path.join(ADES_LOGS_PATH, f"{namespace}_calrissian.log")
-            )
+            calrissian_log_array = helpers.retrieve_logs(controller_uid=controller_uid, namespace=namespace,
+                                                   container="calrissian")
+            for idx, calrissian_log_attempt in enumerate(calrissian_log_array):
+                helpers.storeLogs(
+                    calrissian_log_attempt, os.path.join(ADES_LOGS_PATH, f"{namespace}_{idx}_calrissian.log")
+                )
 
             # returning Failed status
             status = {
@@ -81,4 +81,3 @@ def run(namespace, workflow_name, service_id, run_id, state=None):
     except Exception as e:
         print("Exception when calling get status:: %s\n" % e)
         raise e
-

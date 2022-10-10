@@ -34,7 +34,7 @@ def run(namespace, workflow_name, service_id, run_id, state=None):
                                                    container="calrissian")
 
             for idx, calrissian_log_attempt in enumerate(calrissian_log_array):
-                helpers.storeLogs(
+                helpers.store_logs(
                     calrissian_log_attempt, os.path.join(ADES_LOGS_PATH, f"{namespace}_{idx}_calrissian.log")
                 )
 
@@ -42,12 +42,12 @@ def run(namespace, workflow_name, service_id, run_id, state=None):
             output_log_file = os.path.join(ADES_LOGS_PATH, f"{namespace}_output.json")
             output_log = helpers.retrieve_logs(controller_uid=controller_uid, namespace=namespace,
                                                container="sidecar-container-output")[-1]
-            helpers.storeLogs(output_log, output_log_file)
+            helpers.store_logs(output_log, output_log_file)
 
             # Retrieving and storing USAGE logs
             usage_log = helpers.retrieve_logs(controller_uid=controller_uid, namespace=namespace,
                                               container="sidecar-container-usage")[-1]
-            helpers.storeLogs(
+            helpers.store_logs(
                 usage_log, os.path.join(ADES_LOGS_PATH, f"{namespace}_usage.json")
             )
 
@@ -62,7 +62,7 @@ def run(namespace, workflow_name, service_id, run_id, state=None):
             calrissian_log_array = helpers.retrieve_logs(controller_uid=controller_uid, namespace=namespace,
                                                    container="calrissian")
             for idx, calrissian_log_attempt in enumerate(calrissian_log_array):
-                helpers.storeLogs(
+                helpers.store_logs(
                     calrissian_log_attempt, os.path.join(ADES_LOGS_PATH, f"{namespace}_{idx}_calrissian.log")
                 )
 

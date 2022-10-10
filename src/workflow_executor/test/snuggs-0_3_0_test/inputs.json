@@ -1,0 +1,102 @@
+{
+  "inputs": [
+    {
+      "dataType": "string",
+      "href": "",
+      "id": "input_reference",
+      "mimeType": "",
+      "value": "https://earth-search.aws.element84.com/v0/collections/sentinel-s2-l2a-cogs/items/S2B_36RTT_20191205_0_L2A"
+    },
+    {
+      "dataType": "string",
+      "href": "",
+      "id": "s_expression",
+      "mimeType": "",
+      "value": "nbr:(/ (- B05 B02) (+ B05 B02))"
+    },
+    {
+      "dataType": "string",
+      "href": "",
+      "id": "s_expression",
+      "mimeType": "",
+      "value": "ndvi:(/ (- B05 B03) (+ B05 B03))"
+    },
+    {
+      "dataType": "string",
+      "href": "",
+      "id": "ADES_APP",
+      "mimeType": "",
+      "value": "ades"
+    },
+    {
+      "dataType": "string",
+      "href": "",
+      "id": "ADES_STAGEIN_AWS_ACCESS_KEY_ID",
+      "mimeType": "",
+      "value": "SCWE1S94FGXM8GWCSS80"
+    },
+    {
+      "dataType": "string",
+      "href": "",
+      "id": "ADES_STAGEIN_AWS_SECRET_ACCESS_KEY",
+      "mimeType": "",
+      "value": "4b13264c-90dc-4b19-81ab-3ecb1af92968"
+    },
+    {
+      "dataType": "string",
+      "href": "",
+      "id": "ADES_STAGEIN_AWS_SERVICEURL",
+      "mimeType": "",
+      "value": "https://s3.fr-par.scw.cloud"
+    },
+    {
+      "dataType": "string",
+      "href": "",
+      "id": "ADES_STAGEOUT_AWS_ACCESS_KEY_ID",
+      "mimeType": "",
+      "value": "SCWE1S94FGXM8GWCSS80"
+    },
+    {
+      "dataType": "string",
+      "href": "",
+      "id": "ADES_STAGEOUT_AWS_REGION",
+      "mimeType": "",
+      "value": "fr-par"
+    },
+    {
+      "dataType": "string",
+      "href": "",
+      "id": "ADES_STAGEOUT_AWS_SECRET_ACCESS_KEY",
+      "mimeType": "",
+      "value": "4b13264c-90dc-4b19-81ab-3ecb1af92968"
+    },
+    {
+      "dataType": "string",
+      "href": "",
+      "id": "ADES_STAGEOUT_AWS_SERVICEURL",
+      "mimeType": "",
+      "value": "https://s3.fr-par.scw.cloud"
+    },
+    {
+      "dataType": "string",
+      "href": "",
+      "id": "ADES_STAGEOUT_OUTPUT",
+      "mimeType": "",
+      "value": "s3://eoepca-ades"
+    },
+    {
+      "dataType": "string",
+      "href": "",
+      "id": "job",
+      "mimeType": "",
+      "value": "wf-d2a87da4-3f1b-11ed-9d54-3af8ed014a0e"
+    },
+    {
+      "dataType": "string",
+      "href": "",
+      "id": "outputfile",
+      "mimeType": "",
+      "value": "wf-d2a87da4-3f1b-11ed-9d54-3af8ed014a0e.res"
+    }
+  ]
+}

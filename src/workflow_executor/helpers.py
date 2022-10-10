@@ -115,9 +115,13 @@ def getCwlResourceRequirement(cwl_content):
 
 @retry(reraise=True, wait=wait_fixed(2), stop=stop_after_attempt(3))
 def retrieve_logs(controller_uid, namespace, container="calrissian"):
+    """
+    Retrieves logs of a namespace job by container id.
+    Default container id is set to 'calrissian'
+    """
+
     # create an instance of the API class
     apiclient = get_api_client()
-    api_instance = client.BatchV1Api(api_client=apiclient)
     core_v1 = client.CoreV1Api(api_client=apiclient)
 
     # controllerUid = api_response.metadata.labels["controller-uid"]
@@ -126,7 +130,14 @@ def retrieve_logs(controller_uid, namespace, container="calrissian"):
         namespace=namespace, label_selector=pod_label_selector, timeout_seconds=10
     )
 
+    # instantiating log array
     log_array = []
+
+    # ordering pods in creation time ascending order
+    # ascending means the earliest date is shown first, the latest date is shown last
+    pods_list.items.sort(key=lambda pod: pod.metadata.creation_timestamp)
+
+    # iterate through pods to retrieve their logs
     for pod in pods_list.items:
         pod_name = pod.metadata.name
         try:
@@ -149,7 +160,8 @@ def retrieve_logs(controller_uid, namespace, container="calrissian"):
             raise e
     return log_array
 
-def storeLogs(logs, path):
+
+def store_logs(logs, path):
     f = open(path, "a")
     f.write(logs)
     f.close()

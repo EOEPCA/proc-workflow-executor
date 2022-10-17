@@ -258,6 +258,7 @@ def read_execute(content: ExecuteContent, response: Response):
         # retrieving rm endpoint and user
         resource_manager_endpoint = os.getenv("RESOURCE_MANAGER_ENDPOINT", None)
         resource_manager_user = content.username
+        pod_env_vars["_USERNAME"] = resource_manager_user
 
         platform_domain = os.getenv("ADES_PLATFORM_DOMAIN", None)
 
@@ -460,7 +461,6 @@ def read_getstatus(
         elif resp_status["status"] == "Failed":
             e = Error()
             e.set_error(12, resp_status["error"])
-            response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
 
             # if keepworkspaceiffailed is false, namespace will be discarded
             if not keepworkspaceiffailed:
@@ -472,11 +472,14 @@ def read_getstatus(
                     pprint(clean_job_status)
                 print("Removing Workspace Success")
 
-            return e
+            return JSONResponse(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                content=e.err
+            )
+
     except ApiException as err:
         e = Error()
         e.set_error(12, err.body)
-        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
 
         # if keepworkspaceiffailed is false, namespace will be discarded
         if not keepworkspaceiffailed:
@@ -487,7 +490,11 @@ def read_getstatus(
             else:
                 pprint(clean_job_status)
             print("Removing Workspace Success")
-        return e
+
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content=e.err
+        )
 
     return status
 

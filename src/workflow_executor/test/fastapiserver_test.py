@@ -20,6 +20,7 @@ class FastApiTestCase(unittest.TestCase):
         cls.cluster.create()
         THIS_DIR = os.path.dirname(os.path.abspath(__file__))
         os.environ["KUBECONFIG"] = f"{THIS_DIR}/{cls.cluster.kubeconfig_path}"
+        cls.cluster.kubectl("apply", "-f", "pv.yaml")
 
     @classmethod
     def tearDownClass(cls):
@@ -56,7 +57,7 @@ class FastApiTestCase(unittest.TestCase):
         os.environ["STORAGE_HOST"] = "https://nx10438.your-storageshare.de/"
         os.environ["STORAGE_USERNAME"] = "eoepca-demo-storage"
         os.environ["STORAGE_APIKEY"] = "FakeApiKey"
-        os.environ["STORAGE_CLASS"] = "glusterfs-storage"
+        os.environ["STORAGE_CLASS"] = "standard"
         os.environ["IMAGE_PULL_SECRETS"] = f"{THIS_DIR}/{app_name}_test/imagepullsecrets.json"
         os.environ["ADES_POD_ENV_VARS"] = f"{THIS_DIR}/{app_name}_test/pod_env_vars.yaml"
         os.environ["ADES_POD_NODESELECTORS"] = f"{THIS_DIR}/{app_name}_test/pod_nodeselectors.yaml"

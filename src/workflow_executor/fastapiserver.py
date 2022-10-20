@@ -241,6 +241,10 @@ def read_execute(content: ExecuteContent, response: Response):
         "yes",
     ]
 
+    if content.username is not None:
+        resource_manager_user = content.username
+        pod_env_vars["_USERNAME"] = resource_manager_user
+
     # read RESOURCE MANAGER stageout variables
     if useResourceManagerStageOut:
 
@@ -257,8 +261,6 @@ def read_execute(content: ExecuteContent, response: Response):
 
         # retrieving rm endpoint and user
         resource_manager_endpoint = os.getenv("RESOURCE_MANAGER_ENDPOINT", None)
-        resource_manager_user = content.username
-        pod_env_vars["_USERNAME"] = resource_manager_user
 
         platform_domain = os.getenv("ADES_PLATFORM_DOMAIN", None)
 

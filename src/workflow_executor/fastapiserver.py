@@ -100,7 +100,7 @@ def read_prepare(content: PrepareContent, response: Response):
     tmpVolumeSize = os.getenv("VOLUME_TMP_SIZE", default_tmpVolumeSize)
     outputVolumeSize = os.getenv("VOLUME_OUTPUT_SIZE", default_outputVolumeSize)
 
-    volumeName = sanitize_k8_parameters(f"{content.serviceID}-volume")
+    volume_name_prefix = "volume"
     storage_class_name = os.getenv("STORAGE_CLASS", None)
     cwlResourceRequirement = helpers.getCwlResourceRequirement(content.cwl)
 
@@ -140,14 +140,14 @@ def read_prepare(content: PrepareContent, response: Response):
     print("namespace: %s" % prepare_id)
     print(f"tmpVolumeSize: {tmpVolumeSize}")
     print(f"outputVolumeSize: {outputVolumeSize}")
-    print("volume_name: %s" % volumeName)
+    print("volume_name: %s" % volume_name_prefix)
 
     try:
         resp_status = prepare.run(
             namespace=prepare_id,
             tmpVolumeSize=tmpVolumeSize,
             outputVolumeSize=outputVolumeSize,
-            volumeName=volumeName,
+            volumeName=volume_name_prefix,
             state=state,
             storage_class_name=storage_class_name,
             imagepullsecrets=image_pull_secrets,
@@ -203,7 +203,7 @@ def read_execute(content: ExecuteContent, response: Response):
     cwl_content = content.cwl
     workflowIdHashtag = content.workflowIdHashtag
     inputs_content = json.loads(content.inputs)
-    volume_name_prefix = sanitize_k8_parameters(f"{content.serviceID}-volume")
+    volume_name_prefix = "volume"
     workflow_name = sanitize_k8_parameters(f"wf-{content.runID}")
     mount_folder = "/workflow"
 
@@ -514,13 +514,6 @@ def read_getresult(
         service_id: str, run_id: str, prepare_id: str, job_id: str, response: Response
 ):
     namespace = prepare_id
-    workflow_name = sanitize_k8_parameters(f"wf-{run_id}")
-    volume_name_prefix = sanitize_k8_parameters(f"{service_id}-volume")
-    mount_folder = "/workflow"
-    outputfile = f"{workflow_name}.res"
-
-    state = client.State()
-
     keepworkspaceiffailedString = os.getenv("JOB_KEEPWORKSPACE_IF_FAILED", "True")
     keepworkspaceiffailed = str(keepworkspaceiffailedString).lower() in [
         "true",

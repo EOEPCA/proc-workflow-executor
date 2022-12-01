@@ -301,7 +301,7 @@ def wrapcwl(cwl_document, cwl_wrapper_config=None, workflowId=None):
         k["stageout"] = None
         k["assets"] = None
 
-    wf = Parser(k)
+    wf = Parser(cwl=k["cwl"],rulez=k["rulez"],output=k["output"],maincwl=k["maincwl"], stagein=k["stagein"],stageout=k["stageout"],assets=k["assets"])
     wf.write_output()
 
     with open(wrappedcwl, "r") as f:

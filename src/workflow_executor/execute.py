@@ -45,14 +45,17 @@ def process_inputs(cwl_document, job_input_json_file):
                         inputs[k] = []
 
                     if "value" in input and input["value"] != "":
-                        inputs[k].append(input["value"])
+                        value = helpers.cast_string_to_type(input["value"],
+                                                            str.replace(str.replace(type, "?", ""), "[]", ""))
+                        inputs[k].append(value)
                     else:
                         inputs[k].append(input["href"])
                 else:
                     inputs[k] = {}
 
                     if "value" in input and input["value"] != "":
-                        inputs[k] = input["value"]
+                        value = helpers.cast_string_to_type(input["value"], str.replace(type, "?", ""))
+                        inputs[k] = value
                     else:
                         inputs[k] = input["href"]
 

@@ -1,0 +1,116 @@
+{
+  "inputs": [
+    {
+      "dataType": "float",
+      "href": "",
+      "id": "lon_min",
+      "mimeType": "",
+      "value": "9.000000"
+    },
+    {
+      "dataType": "float",
+      "href": "",
+      "id": "lon_max",
+      "mimeType": "",
+      "value": "10.000000"
+    },
+    {
+      "dataType": "float",
+      "href": "",
+      "id": "lat_min",
+      "mimeType": "",
+      "value": "35.000000"
+    },
+    {
+      "dataType": "float",
+      "href": "",
+      "id": "lat_max",
+      "mimeType": "",
+      "value": "36.000000"
+    },
+    {
+      "dataType": "string",
+      "href": "",
+      "id": "ADES_APP",
+      "mimeType": "",
+      "value": "ades"
+    },
+    {
+      "dataType": "string",
+      "href": "",
+      "id": "ADES_STAGEIN_AWS_ACCESS_KEY_ID",
+      "mimeType": "",
+      "value": "some_data_string"
+    },
+    {
+      "dataType": "string",
+      "href": "",
+      "id": "ADES_STAGEIN_AWS_REGION",
+      "mimeType": "",
+      "value": "fr-par"
+    },
+    {
+      "dataType": "string",
+      "href": "",
+      "id": "ADES_STAGEIN_AWS_SECRET_ACCESS_KEY",
+      "mimeType": "",
+      "value": "some_data_string"
+    },
+    {
+      "dataType": "string",
+      "href": "",
+      "id": "ADES_STAGEIN_AWS_SERVICEURL",
+      "mimeType": "",
+      "value": "https://test.cloud"
+    },
+    {
+      "dataType": "string",
+      "href": "",
+      "id": "ADES_STAGEOUT_AWS_ACCESS_KEY_ID",
+      "mimeType": "",
+      "value": "some_data_string"
+    },
+    {
+      "dataType": "string",
+      "href": "",
+      "id": "ADES_STAGEOUT_AWS_REGION",
+      "mimeType": "",
+      "value": "fr-par"
+    },
+    {
+      "dataType": "string",
+      "href": "",
+      "id": "ADES_STAGEOUT_AWS_SECRET_ACCESS_KEY",
+      "mimeType": "",
+      "value": "some_data_string"
+    },
+    {
+      "dataType": "string",
+      "href": "",
+      "id": "ADES_STAGEOUT_AWS_SERVICEURL",
+      "mimeType": "",
+      "value": "https://test.cloud"
+    },
+    {
+      "dataType": "string",
+      "href": "",
+      "id": "ADES_STAGEOUT_OUTPUT",
+      "mimeType": "",
+      "value": "s3://processing-results"
+    },
+    {
+      "dataType": "string",
+      "href": "",
+      "id": "job",
+      "mimeType": "",
+      "value": "wf-7aa19cda-b3a6-11ed-9c01-7ed679dd4a69"
+    },
+    {
+      "dataType": "string",
+      "href": "",
+      "id": "outputfile",
+      "mimeType": "",
+      "value": "wf-7aa19cda-b3a6-11ed-9c01-7ed679dd4a69.res"
+    }
+  ]
+}

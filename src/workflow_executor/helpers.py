@@ -248,3 +248,28 @@ def get_namespace_list_from_label(label_selector):
         print("Exception when calling dismiss: %s\n" % e)
         raise e
     return namespace_list
+
+
+def cast_string_to_type(string_to_cast, type_string):
+    try:
+        if type_string == "string":
+            casted_value = string_to_cast
+        elif type_string == "boolean":
+            casted_value = bool(string_to_cast)
+        else:
+            # Python doesn’t provide an explicit “double” data type.
+            # However, it provides the float type that behaves the same and has the same precision as doubles
+            if type_string == "double":
+                type_string = "float"
+
+            # Python doesn’t provide an explicit “long” data type.
+            # However, it provides the int type that behaves the same
+            # A long is an integer type value that has unlimited length.
+            if type_string == "long":
+                type_string = "int"
+
+            casted_value = eval(f"{type_string}({string_to_cast})")
+        return casted_value
+    except NameError:
+        raise ValueError(f"Could not cast string value {string_to_cast} to type {type_string}")
+

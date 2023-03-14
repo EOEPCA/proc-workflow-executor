@@ -16,6 +16,7 @@ spec:
           image: {{calrissianImage}}
           command: ["calrissian"]
           args:
+            - "--enable-ext"
             - "--stdout"
             - "{{stdout}}"
             - "--stderr"

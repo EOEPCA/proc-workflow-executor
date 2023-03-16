@@ -66,6 +66,13 @@ def run(namespace, workflow_name, service_id, run_id, state=None):
                     calrissian_log_attempt, os.path.join(ADES_LOGS_PATH, f"{namespace}_{idx}_calrissian.log")
                 )
 
+            # Retrieving and storing USAGE logs
+            usage_log = helpers.retrieve_logs(controller_uid=controller_uid, namespace=namespace,
+                                              container="sidecar-container-usage")[-1]
+            helpers.store_logs(
+                usage_log, os.path.join(ADES_LOGS_PATH, f"{namespace}_usage.json")
+            )
+
             # returning Failed status
             status = {
                 "status": "Failed",

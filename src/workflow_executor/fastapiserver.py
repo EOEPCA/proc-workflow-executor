@@ -453,7 +453,7 @@ def read_getstatus(
     from fastapi import status
 
     try:
-        resp_status, usage_report = ades_status.run(namespace=namespace, workflow_name=workflow_name)
+        resp_status = ades_status.run(namespace=namespace, workflow_name=workflow_name)
 
         if resp_status["status"] == "Running":
             response.status_code = status.HTTP_200_OK
@@ -463,10 +463,9 @@ def read_getstatus(
             status = {"percent": 100, "msg": "done"}
         elif resp_status["status"] == "Failed":
             e = Error()
-
             k8s_error_message = resp_status["error"]
-            if usage_report and "Job has reached the specified backoff limit" in k8s_error_message:
-                error_msg_from_usage_report = helpers.generate_error_message_from_usage_report(usage_report)
+            if resp_status["usage_log"] and "Job has reached the specified backoff limit" in k8s_error_message:
+                error_msg_from_usage_report = helpers.generate_error_message_from_usage_report(resp_status["usage_log"])
                 e.set_error(12, error_msg_from_usage_report)
             else:
                 e.set_error(12, resp_status["error"])

@@ -276,6 +276,6 @@ def cast_string_to_type(string_to_cast, type_string):
 
 def generate_error_message_from_usage_report(usage_report):
     error_msg = "Unexpected application error occurred."
-    for step in usage_report["children"]:
-        error_msg = error_msg + f"\n{step['name']}: {step['exit_code']}"
+    for step in json.loads(usage_report)["children"]:
+        error_msg = error_msg + f"\\n{step['name']}: {step['exit_code']}"
     return error_msg

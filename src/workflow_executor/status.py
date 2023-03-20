@@ -23,7 +23,7 @@ def run(namespace, workflow_name):
         )
 
         if api_response.status.active:
-            status = {"status": "Running", "error": ""}
+            status = {"status": "Running", "error": "", "usage_log": ""}
             pprint(status)
             return status
         elif api_response.status.succeeded:
@@ -52,7 +52,11 @@ def run(namespace, workflow_name):
             )
 
             # returning Success status
-            status = {"status": "Success", "error": ""}
+            status = {
+                "status": "Success",
+                "error": "",
+                "usage_log": usage_log if usage_log is not None else ''
+            }
 
         elif api_response.status.failed:
 
@@ -77,10 +81,11 @@ def run(namespace, workflow_name):
             status = {
                 "status": "Failed",
                 "error": api_response.status.conditions[0].message,
+                "usage_log": usage_log if usage_log is not None else ''
             }
 
         pprint(status)
-        return status, usage_log
+        return status
 
     except ApiException as e:
         print("Exception when calling get status: %s\n" % e)

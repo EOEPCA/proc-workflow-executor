@@ -19,7 +19,7 @@ class ErrorMessageTestCase(unittest.TestCase):
         usage_report_file = path.join(test_folder_path, f"data/error_message_test/usage_report.json")
 
         with open(usage_report_file, "r") as stream:
-            usage_report = json.load(stream)
+            usage_report = stream.read()
 
         error_msg = helpers.generate_error_message_from_usage_report(usage_report)
 

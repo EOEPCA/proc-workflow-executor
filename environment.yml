@@ -1,11 +1,12 @@
 name: env_workflow_executor
 channels:
+  - eoepca/label/dev
   - eoepca
   - conda-forge
   - terradue
   - defaults
 dependencies:
-  - cwl-wrapper==0.11.2
+  - cwl-wrapper==0.11.5
   - click==7.1.2
   - fastapi==0.65.0
   - python-kubernetes==17.17.0

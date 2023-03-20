@@ -273,3 +273,9 @@ def cast_string_to_type(string_to_cast, type_string):
     except NameError:
         raise ValueError(f"Could not cast string value {string_to_cast} to type {type_string}")
 
+
+def generate_error_message_from_usage_report(usage_report):
+    error_msg = "Unexpected application error occurred."
+    for step in usage_report["children"]:
+        error_msg = error_msg + f"\n{step['name']}: {step['exit_code']}"
+    return error_msg

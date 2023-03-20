@@ -9,7 +9,7 @@ from workflow_executor import helpers
 ADES_LOGS_PATH = "/var/www/_run/res"
 
 
-def run(namespace, workflow_name, service_id, run_id, state=None):
+def run(namespace, workflow_name):
     # create an instance of the API class
     apiclient = helpers.get_api_client()
     api_instance = client.BatchV1Api(api_client=apiclient)
@@ -80,7 +80,7 @@ def run(namespace, workflow_name, service_id, run_id, state=None):
             }
 
         pprint(status)
-        return status
+        return status, usage_log
 
     except ApiException as e:
         print("Exception when calling get status: %s\n" % e)

@@ -463,12 +463,18 @@ def read_getstatus(
             status = {"percent": 100, "msg": "done"}
         elif resp_status["status"] == "Failed":
             e = Error()
+
             k8s_error_message = resp_status["error"]
-            if resp_status["usage_log"] and "Job has reached the specified backoff limit" in k8s_error_message:
-                error_msg_from_usage_report = helpers.generate_error_message_from_usage_report(resp_status["usage_log"])
-                e.set_error(12, error_msg_from_usage_report)
-            else:
-                e.set_error(12, resp_status["error"])
+            usage_report = resp_status["usage_log"] if "usage_log" in resp_status else None
+            error_message_templates = helpers.get_error_message_templates()
+
+            # if an error message template list is provided, we will modify the error msg returned
+            # by k8s with a more human-readable msg
+            error_msg = helpers.generate_error_message_from_message_template(
+                kubernetes_error=k8s_error_message, error_message_templates=error_message_templates,
+                usage_report=usage_report, namespace=namespace, workflow_name=workflow_name)
+            e.set_error(12, error_msg)
+
 
             # if keepworkspaceiffailed is false, namespace will be discarded
             if not keepworkspaceiffailed:

@@ -1,6 +1,5 @@
 name: env_workflow_executor
 channels:
-  - eoepca/label/dev
   - eoepca
   - conda-forge
   - terradue

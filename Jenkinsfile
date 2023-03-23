@@ -24,7 +24,6 @@ pipeline {
                 mkdir -p /home/jovyan/conda-bld/work
                 cd $WORKSPACE
                 conda config --add channels eoepca
-                conda config --add channels "eoepca/label/dev"
                 mamba build .
                 '''
             }

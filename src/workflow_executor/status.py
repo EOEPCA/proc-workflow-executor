@@ -9,7 +9,7 @@ from workflow_executor import helpers
 ADES_LOGS_PATH = "/var/www/_run/res"
 
 
-def run(namespace, workflow_name, service_id, run_id, state=None):
+def run(namespace, workflow_name):
     # create an instance of the API class
     apiclient = helpers.get_api_client()
     api_instance = client.BatchV1Api(api_client=apiclient)
@@ -23,7 +23,7 @@ def run(namespace, workflow_name, service_id, run_id, state=None):
         )
 
         if api_response.status.active:
-            status = {"status": "Running", "error": ""}
+            status = {"status": "Running", "error": "", "usage_log": ""}
             pprint(status)
             return status
         elif api_response.status.succeeded:
@@ -52,7 +52,11 @@ def run(namespace, workflow_name, service_id, run_id, state=None):
             )
 
             # returning Success status
-            status = {"status": "Success", "error": ""}
+            status = {
+                "status": "Success",
+                "error": "",
+                "usage_log": usage_log if usage_log is not None else ''
+            }
 
         elif api_response.status.failed:
 
@@ -66,10 +70,18 @@ def run(namespace, workflow_name, service_id, run_id, state=None):
                     calrissian_log_attempt, os.path.join(ADES_LOGS_PATH, f"{namespace}_{idx}_calrissian.log")
                 )
 
+            # Retrieving and storing USAGE logs
+            usage_log = helpers.retrieve_logs(controller_uid=controller_uid, namespace=namespace,
+                                              container="sidecar-container-usage")[-1]
+            helpers.store_logs(
+                usage_log, os.path.join(ADES_LOGS_PATH, f"{namespace}_usage.json")
+            )
+
             # returning Failed status
             status = {
                 "status": "Failed",
                 "error": api_response.status.conditions[0].message,
+                "usage_log": usage_log if usage_log is not None else ''
             }
 
         pprint(status)

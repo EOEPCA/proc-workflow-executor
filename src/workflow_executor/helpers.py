@@ -9,7 +9,7 @@ from kubernetes.client import Configuration
 from kubernetes.client.rest import ApiException
 import boto3
 from tenacity import retry, wait_fixed, stop_after_attempt
-
+from string import Template
 from . import eoepcaclient
 import json
 
@@ -273,3 +273,37 @@ def cast_string_to_type(string_to_cast, type_string):
     except NameError:
         raise ValueError(f"Could not cast string value {string_to_cast} to type {type_string}")
 
+
+def generate_error_message_from_message_template(kubernetes_error, error_message_templates=None, usage_report=None, namespace=None, workflow_name=None):
+
+    if error_message_templates is None:
+        return kubernetes_error
+
+    try:
+        error_message_templates_json = json.loads(error_message_templates)
+
+        steps_exit_codes = ''
+        if usage_report:
+            # create a json from the exit codes
+            steps_exit_codes = ', '.join(
+                [f"{{\"{step['name']}\": {step['exit_code']}}}" for step in json.loads(usage_report)["children"]])
+            steps_exit_codes = f"[{steps_exit_codes}]"
+
+        error_msg_template = Template(error_message_templates_json[kubernetes_error])
+        error_msg = error_msg_template.substitute(steps_exit_codes=steps_exit_codes, namespace=namespace, workflow_name=workflow_name)
+        return error_msg
+    except:
+        return kubernetes_error
+
+
+
+
+def get_error_message_templates():
+    file_path = "/opt/error_message_templates/error_message_templates.json"
+
+    if os.path.isfile(file_path):
+        with open(file_path, "r") as stream:
+            error_message_templates = stream.read()
+        return error_message_templates
+    else:
+        return None

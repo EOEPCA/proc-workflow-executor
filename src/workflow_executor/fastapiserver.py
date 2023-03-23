@@ -305,15 +305,18 @@ def read_execute(content: ExecuteContent, response: Response):
             endpoint = workspaceDetails["storage"]["credentials"]["endpoint"]
             access = workspaceDetails["storage"]["credentials"]["access"]
             bucketname = workspaceDetails["storage"]["credentials"]["bucketname"]
-            projectid = workspaceDetails["storage"]["credentials"]["projectid"]
+            projectid = workspaceDetails["storage"]["credentials"]["projectid"] if "projectid" in \
+                                                                                 workspaceDetails["storage"][
+                                                                                     "credentials"] else None
             secret = workspaceDetails["storage"]["credentials"]["secret"]
-            region = workspaceDetails["storage"]["credentials"]["region"]
+            region = workspaceDetails["storage"]["credentials"]["region"] if "projectid" in workspaceDetails["storage"][
+                "region"] else ""
 
             cwl_inputs["STAGEOUT_AWS_SERVICEURL"] = endpoint
             cwl_inputs["STAGEOUT_AWS_ACCESS_KEY_ID"] = access
             cwl_inputs["STAGEOUT_AWS_SECRET_ACCESS_KEY"] = secret
             cwl_inputs["STAGEOUT_AWS_REGION"] = region
-            cwl_inputs["STAGEOUT_OUTPUT"] = f"s3://{projectid}:{bucketname}"
+            cwl_inputs["STAGEOUT_OUTPUT"] = f"s3://{projectid + ':' if projectid else ''}{bucketname}"
 
         except KeyError:
             e = Error()
@@ -450,9 +453,7 @@ def read_getstatus(
     from fastapi import status
 
     try:
-        resp_status = ades_status.run(
-            namespace=namespace, workflow_name=workflow_name, service_id=service_id, run_id=run_id, state=state
-        )
+        resp_status = ades_status.run(namespace=namespace, workflow_name=workflow_name)
 
         if resp_status["status"] == "Running":
             response.status_code = status.HTTP_200_OK
@@ -462,7 +463,18 @@ def read_getstatus(
             status = {"percent": 100, "msg": "done"}
         elif resp_status["status"] == "Failed":
             e = Error()
-            e.set_error(12, resp_status["error"])
+
+            k8s_error_message = resp_status["error"]
+            usage_report = resp_status["usage_log"] if "usage_log" in resp_status else None
+            error_message_templates = helpers.get_error_message_templates()
+
+            # if an error message template list is provided, we will modify the error msg returned
+            # by k8s with a more human-readable msg
+            error_msg = helpers.generate_error_message_from_message_template(
+                kubernetes_error=k8s_error_message, error_message_templates=error_message_templates,
+                usage_report=usage_report, namespace=namespace, workflow_name=workflow_name)
+            e.set_error(12, error_msg)
+
 
             # if keepworkspaceiffailed is false, namespace will be discarded
             if not keepworkspaceiffailed:

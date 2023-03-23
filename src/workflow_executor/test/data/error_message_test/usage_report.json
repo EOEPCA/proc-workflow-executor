@@ -1,0 +1,56 @@
+{
+    "cores_allowed": 2.0,
+    "ram_mb_allowed": 5368.70912,
+    "children": [
+        {
+            "cpus": 1.0,
+            "ram_megabytes": 1073.741824,
+            "disk_megabytes": 0.0,
+            "exit_code": 0,
+            "name": "step_1",
+            "start_time": "2023-03-16T17:21:03+00:00",
+            "finish_time": "2023-03-16T17:21:33+00:00",
+            "elapsed_hours": 0.008333333333333333,
+            "elapsed_seconds": 30.0,
+            "ram_megabyte_hours": 8.947848533333334,
+            "cpu_hours": 0.008333333333333333
+        },
+          {
+            "cpus": 1.0,
+            "ram_megabytes": 1073.741824,
+            "disk_megabytes": 0.0,
+            "exit_code": 0,
+            "name": "step_2",
+            "start_time": "2023-03-16T17:21:03+00:00",
+            "finish_time": "2023-03-16T17:21:33+00:00",
+            "elapsed_hours": 0.008333333333333333,
+            "elapsed_seconds": 30.0,
+            "ram_megabyte_hours": 8.947848533333334,
+            "cpu_hours": 0.008333333333333333
+        },
+        {
+            "cpus": 1.0,
+            "ram_megabytes": 1073.741824,
+            "disk_megabytes": 0.0,
+            "exit_code": 33,
+            "name": "step_3",
+            "start_time": "2023-03-16T17:21:03+00:00",
+            "finish_time": "2023-03-16T17:21:33+00:00",
+            "elapsed_hours": 0.008333333333333333,
+            "elapsed_seconds": 30.0,
+            "ram_megabyte_hours": 8.947848533333334,
+            "cpu_hours": 0.008333333333333333
+        }
+    ],
+    "start_time": "2023-03-16T17:21:03+00:00",
+    "finish_time": "2023-03-16T17:21:33+00:00",
+    "elapsed_hours": 0.008333333333333333,
+    "elapsed_seconds": 30.0,
+    "total_cpu_hours": 0.008333333333333333,
+    "total_ram_megabyte_hours": 8.947848533333334,
+    "total_disk_megabytes": 0,
+    "total_tasks": 1,
+    "max_parallel_cpus": 1.0,
+    "max_parallel_ram_megabytes": 1073.741824,
+    "max_parallel_tasks": 1
+}

@@ -309,13 +309,14 @@ def read_execute(content: ExecuteContent, response: Response):
                                                                                  workspaceDetails["storage"][
                                                                                      "credentials"] else None
             secret = workspaceDetails["storage"]["credentials"]["secret"]
-            region = workspaceDetails["storage"]["credentials"]["region"] if "projectid" in workspaceDetails["storage"][
-                "region"] else ""
+            region = workspaceDetails["storage"]["credentials"]["region"] if "region" in workspaceDetails["storage"][
+                "credentials"] else None
 
             cwl_inputs["STAGEOUT_AWS_SERVICEURL"] = endpoint
             cwl_inputs["STAGEOUT_AWS_ACCESS_KEY_ID"] = access
             cwl_inputs["STAGEOUT_AWS_SECRET_ACCESS_KEY"] = secret
-            cwl_inputs["STAGEOUT_AWS_REGION"] = region
+            if region:
+                cwl_inputs["STAGEOUT_AWS_REGION"] = region
             cwl_inputs["STAGEOUT_OUTPUT"] = f"s3://{projectid + ':' if projectid else ''}{bucketname}"
 
         except KeyError:

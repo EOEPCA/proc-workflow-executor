@@ -16,7 +16,6 @@ spec:
           image: {{calrissianImage}}
           command: ["calrissian"]
           args:
-            - "--enable-ext"
             - "--stdout"
             - "{{stdout}}"
             - "--stderr"
@@ -36,6 +35,7 @@ spec:
             - "{{pod_nodeselectors_path}}"
             {% endif %}
             - "--debug"
+            - "--enable-ext"
             # - "--leave-tmpdir"
             # - "--leave-container"
             - "--no-read-only"

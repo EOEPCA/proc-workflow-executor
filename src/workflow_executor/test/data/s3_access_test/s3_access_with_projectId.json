@@ -6,7 +6,7 @@
         "bucketname": "dev-test",
         "projectid": "fake-project-id",
         "secret": "xxxxx",
-        "endpoint": "<https://spdata01.adwaiseo-services.com",
+        "endpoint": "https://spdata01.adwaiseo-services.com",
         "region": ""
       }
 

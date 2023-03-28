@@ -1,11 +1,14 @@
 {
   "storage": {
+
       "credentials": {
         "access": "sxxxxxxxr",
         "bucketname": "dev-test",
+        "projectid": "",
         "secret": "xxxxx",
         "endpoint": "https://spdata01.adwaiseo-services.com",
         "region": ""
       }
+
   }
 }

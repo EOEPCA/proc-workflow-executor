@@ -38,15 +38,20 @@ def process_inputs(cwl_document, job_input_json_file):
         for input in job_input_json["inputs"]:
 
             if input["id"] == k:
-                type = v["type"]
+                _type = v["type"]
 
-                if "[]" in type:
+                # if type is a list, the type is probably an enum
+                if isinstance(_type, list):
+                    print("type is list")
+                    _type = _type[0]["type"]
+
+                if "[]" in _type:
                     if k not in inputs.keys():
                         inputs[k] = []
 
                     if "value" in input and input["value"] != "":
                         value = helpers.cast_string_to_type(input["value"],
-                                                            str.replace(str.replace(type, "?", ""), "[]", ""))
+                                                            str.replace(str.replace(_type, "?", ""), "[]", ""))
                         inputs[k].append(value)
                     else:
                         inputs[k].append(input["href"])
@@ -54,7 +59,7 @@ def process_inputs(cwl_document, job_input_json_file):
                     inputs[k] = {}
 
                     if "value" in input and input["value"] != "":
-                        value = helpers.cast_string_to_type(input["value"], str.replace(type, "?", ""))
+                        value = helpers.cast_string_to_type(input["value"], str.replace(_type, "?", ""))
                         inputs[k] = value
                     else:
                         inputs[k] = input["href"]

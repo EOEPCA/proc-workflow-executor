@@ -42,7 +42,6 @@ def process_inputs(cwl_document, job_input_json_file):
 
                 # if type is a list, the type is probably an enum
                 if isinstance(_type, list):
-                    print("type is list")
                     _type = _type[0]["type"]
 
                 if "[]" in _type:

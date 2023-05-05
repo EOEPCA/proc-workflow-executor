@@ -111,6 +111,20 @@
       "id": "outputfile",
       "mimeType": "",
       "value": "wf-7aa19cda-b3a6-11ed-9c01-7ed679dd4a69.res"
+    },
+    {
+      "dataType": "string",
+      "href": "",
+      "id": "input_reference",
+      "mimeType": "",
+      "value": "https://catalog.charter.uat.esaportal.eu//charter/cat/[chartercalibrateddataset,!excluded,%7Bcallid932%7D]/search?format=atom&uid=call932_WV02N37_000277E036_6277772022122700000000MS00-calibrated&do=[terradue]"
+    },
+    {
+      "dataType": "string",
+      "href": "",
+      "id": "input_reference",
+      "mimeType": "",
+      "value": "https://catalog.charter.uat.esaportal.eu//charter/cat/[chartercalibrateddataset,!excluded,%7Bcallid932%7D]/search?format=atom&uid=call932_WV03N37_066527E036_6394442023020700000000MS00-calibrated&do=[terradue]"
     }
   ]
 }

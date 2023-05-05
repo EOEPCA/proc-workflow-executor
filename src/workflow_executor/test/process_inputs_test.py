@@ -83,6 +83,16 @@ class CastingInputTest(unittest.TestCase):
 
         self.assertEqual(True, True)
 
+    def test_process_inputs2(self):
+        test_folder_path = os.path.dirname(__file__)
+        cwl = path.join(test_folder_path, f"data/process_inputs_test/wrapped_app_package2.cwl")
+        inputs = path.join(test_folder_path, f"data/process_inputs_test/inputs2.json")
+
+        processed_inputs = execute.process_inputs(cwl_document=cwl, job_input_json_file=inputs)
+        print(processed_inputs)
+
+        self.assertEqual(True, True)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -252,7 +252,7 @@ def get_namespace_list_from_label(label_selector):
 
 def cast_string_to_type(string_to_cast, type_string):
     try:
-        if type_string == "string":
+        if type_string == "string" or type_string == "enum":
             casted_value = string_to_cast
         elif type_string == "boolean":
             casted_value = bool(string_to_cast)

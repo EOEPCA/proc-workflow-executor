@@ -45,6 +45,11 @@ $graph:
       type: float[]
     process:
       type: string?
+    input_reference:
+     doc: Input products reference list (ordered as pre and post event)
+     id: input_reference
+     label: Input products reference list (ordered as pre and post event)
+     type: string[]
   label: macro-cwl
   outputs:
     s3_catalog_output:

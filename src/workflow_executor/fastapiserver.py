@@ -286,12 +286,21 @@ def read_execute(content: ExecuteContent, response: Response):
         workspace_id = f"{rmWorkspacePrefix}-{resource_manager_user}".lower()
 
         # retrieve workspace details
-        response = helpers.getResourceManagerWorkspaceDetails(
-            resource_manager_endpoint=resource_manager_endpoint,
-            platform_domain=platform_domain,
-            workspace_name=workspace_id,
-            user_id_token=userIdToken,
-        )
+        try:
+            response = helpers.getResourceManagerWorkspaceDetails(
+                resource_manager_endpoint=resource_manager_endpoint,
+                platform_domain=platform_domain,
+                workspace_name=workspace_id,
+                user_id_token=userIdToken
+            )
+        except UnboundLocalError as e:
+            # UnboundLocalError: local variable 'ticket' referenced before assignment
+            error_message = "401 (Unauthorized) Error retrieving workspace access details. Please check your Resource "\
+                            "Manager endpoint configuration."
+            e = Error()
+            e.set_error(12, error_message)
+            response.status_code = response.status_code
+            return e
 
         if response.status_code != 200:
             print(response.text)

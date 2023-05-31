@@ -616,8 +616,12 @@ def read_register_results(content: ExecuteContent, response: Response):
             "y",
             "yes",
         ]
+
         # read RESOURCE MANAGER stageout variables
         if useResourceManagerStageOut:
+
+            userIdToken = None
+            bearerToken = None
 
             # retrieving bearerToken
             bearerToken = content.bearerToken

@@ -168,7 +168,7 @@ def store_logs(logs, path):
 
 
 def getResourceManagerWorkspaceDetails(
-        resource_manager_endpoint, platform_domain, workspace_name, bearer_token=None, user_id_token=None
+        resource_manager_endpoint, platform_domain, workspace_name, access_token=None, user_id_token=None
 ):
     print("getResourceManagerWorkspaceDetails start")
 
@@ -179,12 +179,11 @@ def getResourceManagerWorkspaceDetails(
     print("Client succesfully registered")
 
     print("Calling workspace api")
-    workspace_access_token = bearer_token
     response, workspace_access_token = demo.workspace_get_details(
         service_base_url=resource_manager_endpoint,
         workspace_name=workspace_name,
         id_token=user_id_token,
-        access_token=workspace_access_token,
+        access_token=access_token
     )
     print("getResourceManagerWorkspaceDetails end")
     return response
@@ -196,6 +195,7 @@ def registerResults(
         workspace_name,
         result_url,
         user_id_token=None,
+        access_token=None
 ):
     print("registerResults start")
 
@@ -206,13 +206,12 @@ def registerResults(
     print("Client succesfully registered")
 
     print("Calling workspace api")
-    workspace_access_token = None
     response, workspace_access_token = demo.workspace_register(
         service_base_url=resource_manager_endpoint,
         workspace_name=workspace_name,
         result_url=result_url,
         id_token=user_id_token,
-        access_token=workspace_access_token,
+        access_token=access_token,
     )
     registration_details = response.json()
     print(json.dumps(registration_details, indent=2))

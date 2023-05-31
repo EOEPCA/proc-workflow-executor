@@ -168,7 +168,7 @@ def store_logs(logs, path):
 
 
 def getResourceManagerWorkspaceDetails(
-        resource_manager_endpoint, platform_domain, workspace_name, user_id_token=None
+        resource_manager_endpoint, platform_domain, workspace_name, bearer_token=None, user_id_token=None
 ):
     print("getResourceManagerWorkspaceDetails start")
 
@@ -179,7 +179,7 @@ def getResourceManagerWorkspaceDetails(
     print("Client succesfully registered")
 
     print("Calling workspace api")
-    workspace_access_token = None
+    workspace_access_token = bearer_token
     response, workspace_access_token = demo.workspace_get_details(
         service_base_url=resource_manager_endpoint,
         workspace_name=workspace_name,

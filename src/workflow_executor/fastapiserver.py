@@ -59,6 +59,7 @@ class ExecuteContent(PrepareContent):
     inputs: Optional[str] = None
     username: Optional[str] = None
     userIdToken: Optional[str] = None
+    bearerToken: Optional[str] = None
     registerResultUrl: Optional[str] = None
     workspaceResource: Optional[str] = None
     workflowIdHashtag: Optional[str] = None
@@ -247,14 +248,16 @@ def read_execute(content: ExecuteContent, response: Response):
 
     # read RESOURCE MANAGER stageout variables
     if useResourceManagerStageOut:
-
-        # retrieving userIdToken
-        userIdToken = content.userIdToken
-        if userIdToken is None:
-            e = Error()
-            e.set_error(12, "User Id Token is missing or is invalid")
-            response.status_code = status.HTTP_400_BAD_REQUEST
-            return e
+        # retrieving bearerToken
+        bearerToken = content.bearerToken
+        if bearerToken is None:
+            #bearerToken was not provided, trying to retrieve userIdToken
+            userIdToken = content.userIdToken
+            if userIdToken is None:
+                e = Error()
+                e.set_error(12, "Bearer token is missing or is invalid User-Id-Token is missing or is invalid")
+                response.status_code = status.HTTP_400_BAD_REQUEST
+                return e
 
         # retrieving resource manager workspace prefix
         rmWorkspacePrefix = os.getenv("RESOURCE_MANAGER_WORKSPACE_PREFIX", "rm-user")
@@ -291,6 +294,7 @@ def read_execute(content: ExecuteContent, response: Response):
                 resource_manager_endpoint=resource_manager_endpoint,
                 platform_domain=platform_domain,
                 workspace_name=workspace_id,
+                bearer_token=bearerToken,
                 user_id_token=userIdToken
             )
         except UnboundLocalError as e:

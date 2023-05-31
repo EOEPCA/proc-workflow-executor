@@ -281,12 +281,13 @@ class DemoClient:
             # init headers if needed
             if headers is None:
                 headers = {}
-            # Set ID Token in header
-            headers["X-User-Id"] = id_token
+
             # use access token if we have one
             if access_token is not None:
                 print("Attempting to use existing access token")
                 headers["Authorization"] = f"Bearer {access_token}"
+                # Set ID Token in header
+                headers["X-User-Id"] = id_token
             else:
                 print("No existing access token - making a naive attempt")
             # attempt access
@@ -303,6 +304,7 @@ class DemoClient:
                 if id_token is not None:
                     # get ticket from the supplied header
                     location_header = r.headers["WWW-Authenticate"]
+                    ticket = None
                     for item in location_header.split(","):
                         if item.split("=")[0] == "ticket":
                             ticket = item.split("=")[1]
@@ -316,6 +318,8 @@ class DemoClient:
                             ticket, id_token
                         )
                         repeat = True
+                    else:
+                        print("No ticket found in WWW-Authenticate response header")
                 else:
                     print("No ID Token, so cannot proceed with UMA flow")
             # unhandled response code

@@ -899,10 +899,14 @@ def clean_job(namespace: str):
         clean_status = clean.run(namespace=namespace)
         return clean_status
     except ApiException as err:
-        e = Error()
-        e.set_error(12, err.body)
-        print(err.body)
-        return e
+        if err.status == 404:
+            # the namespace does not exist or has already been deleted
+            print("Namespace not found.")
+        else:
+            e = Error()
+            e.set_error(12, err.body)
+            print(err.body)
+            return e
 
 
 """

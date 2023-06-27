@@ -88,6 +88,15 @@ def run(namespace, workflow_name):
         return status
 
     except ApiException as e:
+        if e.status == 404:
+            # the  namespace does not exist or has been deleted
+            status = {
+                "status": "Failed",
+                "error": "namespace not found",
+                "usage_log": ""
+            }
+            return status
+
         print("Exception when calling get status: %s\n" % e)
         raise e
     except Exception as e:

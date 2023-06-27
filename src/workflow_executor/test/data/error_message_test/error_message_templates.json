@@ -1,1 +1,4 @@
-{"Job has reached the specified backoff limit": "Unexpected application error occurred. ( exit codes:  $steps_exit_codes, namespace: $namespace, workflow_name: $workflow_name )"}
+{
+  "Job has reached the specified backoff limit": "Unexpected application error occurred. ( exit codes:  $steps_exit_codes, namespace: $namespace, workflow_name: $workflow_name )",
+  "namespace not found": "Job namespace $namespace does not exist or has been removed."
+}

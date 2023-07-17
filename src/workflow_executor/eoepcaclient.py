@@ -282,12 +282,14 @@ class DemoClient:
             if headers is None:
                 headers = {}
 
+            # The workspace api should rely on the bearer token, but instead it relies on the X-User-Id header
+            # this line should be removed on the future when the issue will be fixed
+            headers["X-User-Id"] = id_token
+
             # use access token if we have one
             if access_token is not None:
                 print("Attempting to use existing access token")
                 headers["Authorization"] = f"Bearer {access_token}"
-                # Set ID Token in header
-                headers["X-User-Id"] = id_token
             else:
                 print("No existing access token - making a naive attempt")
             # attempt access
